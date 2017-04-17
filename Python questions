@@ -1,0 +1,8 @@
+Questions about python
+
+How is "def main (args)" different from "def main()"?
+
+Why does this page(http://stackoverflow.com/questions/4041238/why-use-def-main) contain "main()" where as I use "import sys"? Are any of them significant and if so why do both work? If neither is, when are they useful?
+
+
+
