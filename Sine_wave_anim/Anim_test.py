@@ -1,5 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python3
-
+#This code do not belong to Ocean Wong; it is created by the person below:
 """
 Matplotlib Animation Example
 

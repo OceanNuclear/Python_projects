@@ -16,4 +16,3 @@ for n in range (numlines):
 f.seek(0)
 f.close()
 o.close()
-int 
