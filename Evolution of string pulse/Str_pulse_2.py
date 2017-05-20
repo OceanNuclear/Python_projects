@@ -30,7 +30,7 @@ for i in range (1,5):
 	X[i] = float(X[i])*np.pi
 	Y[i] = input("Y["+str(i)+"]=")
 	Y[i] = float(Y[i])
-#The functions
+#Initialize the functions
 Y_1 = [0]*(n_max+1)
 Y_2 = [0]*(n_max+1)
 Y_3 = [0]*(n_max+1)
