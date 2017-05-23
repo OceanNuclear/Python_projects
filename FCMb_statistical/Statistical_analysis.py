@@ -37,7 +37,7 @@ for i in range (0,109):
 	sigma_f[i] = int(f.read(4))
 
 
-sigma_f.sort()	#Odering the data set is needed for evalutating Ps.
+sigma_f.sort()	#Ordering the data set is needed for evalutating Ps.
 #rank of y[i] = i+1
 
 #Find the basic statistical values
