@@ -4,43 +4,45 @@
 #So instead I will be using FFmpeg as a subprocess (pipe) to approach this problem.
 
 #Segments to be fourier analysed:
-#00:00-01:13 (W)
+#00:00-01:13 (W)/
 #01:13-01:26 (W-B)
-#01:26-01:35 (W)
-#01:35-01:36 (W)
+#01:26-01:35 (W)/
+#01:35-01:36 (W)/
 #02:00-02:11 (W-Y-B-G-R)
 #02:13-02:14 (vertical, W-Y-B)
 #02:17-02:21 (W-G-R)
 #02:21-02:28 (WRBY horizontal decending)
 #02:32-02:41 (WRBY vertical left-to-right)
-#02:46-02:49 (W)
-#02:51-02:54 (W)
-#02:56-02:59 (W)
-#04:20-04:21 (W)
-
-#Newest commit: split the whole code into more usable modules.
+#02:46-02:49 (W)/
+#02:51-02:54 (W)/
+#02:56-02:59 (W)/
+#04:20-04:21 (W)/
 
 '''
 Next steps:
 Separate out these as modules:
-	Filtering
-	(NOT fourier analysis! Not worth the time)
-Modify the seeking function to be more precise
-publish it as an animation of the size of xdim/2 x ydim/2
-publish a one second clip of it
-Add a filter that collect the colored lines
-interpolate the colored lines, then print it out
-Add in the colored lines' k space plot
-Animate each of the above segments
-String together these segments
-Add in black screen at appropriate times, and then publish
-shrink the original to half size and put it right next to the video.
-Publish with the original audio.
+1. Filtering, needs optimization by analogizing?
+	SUCCESS. Time on this step per frame is now 0.5s.
+2. Modify the seeking function to be more precise, and run for longer.
+	SUSCESS.
+2.5: Replace the subprocess with direct ffmpy retrieval of the video?
+	#ffmpy.readthedocs.io/en/latest/examples.html#using-pipe-protocol
+3. Make an animation module
+4. publish the first 73 s as an animation of the size of xdim/2 x ydim/2
+5. Add a filter that collect the colored lines
+6. interpolate the colored lines, then print it out
+7. Add in the colored lines' k space plot
+8. Animate each of the above segments
+9. String together these segments
+10.Add in black screen at appropriate times, and then publish
+11.shrink the original to half size and put it right next to the video.
+12.Publish with the original audio.
 
 
 **find an audio module
-**fourier transform the audio too, cause why not
+**fourier transform the audio too, because why not
 add in the last two at the bottom
+Fourier analysis step can be optimized by replacing integration with FFT; but I chose not to because that has lower resolution.
 '''
 
 import numpy as np
@@ -60,53 +62,113 @@ run_time = nframe/fps	#=265.68 seconds
 yoffset = ydim/2		#to counter the 
 vid = "Arctic Monkeys - Do I Wanna Know- (Official Video).mp4"
 nCo = 60	#number of coefficient in fourier analysis
+Red = 0
+Green=1
+Blue= 2
 
-
-#0. Subprogram for fetching snippets of the video
-def get_frames(m,s):	#input time, get one second worth of frames
+#Subprogram for fetching snippets of the video
+def get_frames(m1,s1, d):	#input time, get one second worth of frames
 	import subprocess as sp
 	FFMPEG_BIN = "ffmpeg"
 	#0. convert time
-	if (s==0): s = 59
-	else: s = str(s-1).zfill(2)
-	time = '00:0'+str(m)+':'+str(s)
+	if (s1==0): s1 = 59
+	else: s1 = str(s1-1).zfill(2)
+	time_s = '00:0'+str(m1)+':'+str(s1)
+	no_frame = int(d*fps)
+	d = str(d)
 	#1. Open the video as a subprocess
 	command = [ FFMPEG_BIN,
-		'-ss', time,	#skip to t-1
+		'-ss', time_s,	#skip to t-1
 		'-i', vid,
 		'-ss', '1',
-		'-t', '1',
+		'-t', d,
 		'-f', 'image2pipe',
 		'-pix_fmt', 'rgb24',
 		'-vcodec', 'rawvideo', '-']
 	pipe = sp.Popen(command, stdout = sp.PIPE, bufsize=1000)
+	#Take in the command list's arguments, use the standard stream, and open a buffer of size 1000
 
 	#2. Read one second of the frame
-	pixels = pipe.stdout.read(color*ydim*xdim*fps)
+	pixels = pipe.stdout.read(no_frame*ydim*xdim*color)
+	
+	#3. Close the program
 	pipe.stdout.flush()
-	#3. Turn the byte read into a numpy array
-	snippet = np.fromstring(pixels, dtype='uint8')
-	snippet = snippet.reshape(fps, ydim, xdim, color)	#must divide it up this way, otherwise the computer will crash.
-	#returns: snippet[no. of frame, array]	[y(up to down), array][x][color, arrays]
-	#for the purpose of getting a vertical frame
+	pipe.stdout.close()
 
+	#4. Turn the byte read into a numpy array
+	snippet = np.fromstring(pixels, dtype='uint8')
+	snippet = snippet.reshape(no_frame, ydim, xdim, color)	
+	#must divide it up this way, otherwise the computer will crash.
+	#returns: snippet[no. of frame, array][y(up to down), array][x, array][color, arrays]
+	#for the purpose of getting a vertical frame
+	return snippet
+#Outside of this subprocess all data are ordered in ([fps])[y][x][color]
+
+
+def analogize(snippet):
+	snippet = snippet>>7
+	snippet = snippet*255	#now we have 25 frames of image with analogue pixel values
 	return snippet
 
 
 
-def frame2line1(frame):
+#White line
+def analogueframe2line1(frame):#input frame, output line
+	uframe = np.transpose(frame)#we want to deal with color first instead [color][x][y]
 	W = [0]*xdim
 	WT= [0]*xdim
-	for x in range (0,xdim):
-		for y in range (0, ydim):
-			if (frame[0][x][y]>10) or (frame[1][x][y]>10) or (frame[2][x][y]>10): #if this pixel has any color at all
+	for x in range (1, xdim):
+		WT[x] = np.sum(uframe[Red][x])/255
+		sortedset = np.argsort(uframe[Red][x])
+		#Used this argsort step to replace the if-conditions
+		sortedset = np.split(sortedset, [int(ydim-WT[x]),ydim])[1]
+		W[x] = yoffset-np.mean(sortedset)
+	return(W)
+
+
+
+'''
+#White line
+def analogueframe2line1(frame):#input frame, output line
+	uframe = np.transpose(frame)#we want to deal with color first instead [color][x][y]
+	W = [0]*xdim
+	WT= [0]*xdim
+	for x in range (1, xdim):
+		lowerlimit = int(yoffset-W[x-1]-100)
+		for y in range (lowerlimit, lowerlimit+200):
+			#Each full-frame calculation/or-condition takes an extra 10 seconds,
+			#So I'm instead takinge advantage of the continuity of the function.
+			if (uframe[0][x][y]>10) and (uframe[1][x][y]>10) and (uframe[2][x][y]>10):
 				W[x] += yoffset-y
 				WT[x] +=1
 		W[x]= W[x]/WT[x]
 	return(W)
+'''
 
 
-def line2fouriergraph(W):
+#White+blue lines
+def frame2line2(frame):#input frame, output lines
+	uframe = np.transpose(frame)#we want to deal with color first instead
+	W = [0]*xdim
+	WT= [0]*xdim
+	B = [0]*xdim
+	BT= [0]*xdim
+	for x in range (0,xdim):
+		for y in range (0, ydim):
+			#Each full-frame calculation/or-condition takes an extra 10 seconds.
+			if (uframe[Blue][x][y]>10): 
+				if(uframe[Red][x][y]<10):
+					W[x] += yoffset-y
+					WT[x]+=1
+				else:
+					B[x] += yoffset-y
+					BT[x]+=1
+		W[x]= W[x]/WT[x]
+		B[x]= B[x]/BT[x]
+	return(W,B)
+
+
+def line2fouriergraph1(W):
 	from math import floor
 	from math import ceil
 	B = [0] * nCo	#note that the 0-th coefficient is used for cos instead of sine.
@@ -123,6 +185,14 @@ def line2fouriergraph(W):
 	return(B)
 
 
+#Fast fourier transform
+def line2fouriergraph2(line):
+	line_raw = np.real(np.fft.rfft(line))/1000
+	line_raw = np.split(line_raw, [nCo/2, len(line_raw)])[0]
+	k = np.arange(nCo/2)
+	return line_raw
+
+
 def smoothen(y_values):
 	from scipy.interpolate import spline
 	a = len(y_values)
@@ -134,36 +204,68 @@ def smoothen(y_values):
 
 def plotbg():
 	ax = plt.axes(xlim=(0, nCo), ylim=(-60,60))
+	#for line2fouriergraph1: nCo; 2:nCo/2, as x upper bound.
 	ax.set_axis_bgcolor((0, 0, 0))
 
 def plot(x, y, c):
 	plt.setp(plt.plot(x, y), color = c, linewidth = 3.0 )
 
-
+#_______________________________________________________________________nearing the main code_________________________________________________________
 def White(t1, t2):
 	#6th second,
-	got_frame = get_frames(0, 6)#get the frames in arrays(y) of arrays(x) of arrays(color)
-	
+	snippet = get_frames(0, 10, 1.04)#snippet = a snippet of 1 second. [fps][ydim][xdim][color]
+	snippet = analogize(snippet)	
+
 	#1. For the 0-th frame:
-	frame = np.transpose(got_frame[0])
-	#the format is frame[color][xdim][ydim]
-	White_line = frame2line1(frame)
-	
-	White_B_raw = line2fouriergraph(White_line)
+	White_line = analogueframe2line1(snippet[25])
+	#White_B_raw = line2fouriergraph1(White_line)
+	White_B_raw = line2fouriergraph1(White_line)
 	
 	(k, WB) = smoothen(White_B_raw)
-	
+
 	plotbg()
 	plot(k, WB, 'w')
-	#plot(x, z, 'b')
+	#plot(k, z, 'b')
 	#plot(x, w, 'r')
 	plt.show()
-
-	return
-
-White(1, 1)
+'''
+def WhiteBlue(t1, t2):
+	#6th second,
+	snippet = get_frames(0, 10, 1.04)#snippet = a snippet of 1 second. [fps][ydim][xdim][color]
 	
-#Underconstruction:
+	#1. For the 0-th frame:
+	(White_line, Blue_line) = frame2line2(frame[27])
+	
+	White_line= interpolate(White_line)
+	Blue_line = interpolate(Blue_line)
+
+	White_B_raw= line2fouriergraph1(White_line)
+	Blue_B_raw = line2fouriergraph1(Blue_line)
+
+	(k, WB) = smoothen(White_B_raw)
+	(k, BB) = smoothen(Blue_B_raw)
+
+	plotbg()
+	plot(k, WB, 'w')
+	#plot(k, z, 'b')
+	#plot(x, w, 'r')
+	plt.show()
+'''
+#^Commented away to stop myself from changing the wrong program
+
+
+#Main code is one line long :)_________________________________________________________________________________________________________________________
+
+#WhiteBlue(1,2)
+
+#snippet = get_frames(0,6)
+#snippet = analogize(snippet)
+#frame = snippet[0]
+
+
+
+
+#Underconstruction:____________________________________________________________________________________________________________________________________
 '''
 def Anim
 
@@ -172,52 +274,56 @@ def frame_no2time(no):
 
 def time2frame_no(m, s):
 	s += 60*m
-	s*fps
+	return (int(s*fps))
 '''	
 
-#Debugging modules are here: (generates all frames in one second of the video)
-'''
+#Debugging modules are here: (generates all frames in one second of the video)_________________________________________________________________________
+
 #geneating test functions
+def Just_plot_White_line(frame):#input frame, output plot of line in the frame
+	White_line = analogueframe2line1(frame)
+	x = np.arange(len(White_line))
+	plt.plot(x,White_line)
+	plt.show()
+
+
+
 def generate_test_function():
 	x = np.linspace(0, nCo, nCo*10)
 	y = x
 	z = y/2
 	w = -y
-'''
 
 
-'''
+
 #2. re-construct the graph using the data.(optional)
-def plot2(x, W):
-	x = W-W
+def plot2(W):
+	x = np.arange(len(W))
 	plt.plot(x, W)
 	plt.show()
-'''
+White(1,1)#_________________________________________________________________________Hi the main program's line is currently stored here._______________
 
 
-'''
 #Note to self: (tuple) [list]=[array]
 #PIL Image only accept tuple
-def save_1_second():
-	frame = [0]*25
-	for i in range (0,1):
-		frame[i] = got_frame[i]
-		frame[i] = np.reshape(frame[i], (num_pix, color))
-		frame[i] = tuple(map(tuple, frame[i]))
-	
+#Outside of this image processing subprogram all data are ordered in ([fps])[y][x][color]
+def save_1_second(snippet):
+	#expected input is frame = [[[[]*color]*xdim]*ydim]*fps
+	for i in range (0,1):	#Saving only 1 frame here:
+		#Here the intermediate frame evolves from a single, ordered frame, into a single linear frame.
+		intermediate_frame = snippet[0]
+		intermediate_frame = np.reshape(intermediate_frame, (num_pix, color))
+		#linear frame is the tuple version of intermediate frame
+		linear_frame = tuple(map(tuple, intermediate_frame))
+		
 		still = Image.new('RGB', (xdim,ydim))
-		still.putdata(frame[i])
-		still.save('still_00:59_'+str(i)+'.jpg', 'JPEG')
-'''
-
-
-'''
+		still.putdata(linear_frame)
+		still.save('still_test'+str(i)+'.jpg', 'JPEG')
 #And this is for debugging the debugging code :)
-def printing(frame)
+def printing(frame):
 	print(np.shape(frame))
 	print(type(frame))	
 	print(np.shape(frame[0]))
 	print(type(frame[0]))
 	print(np.shape(frame[0][0]))
 	print(type(frame[0][0]))
-'''
