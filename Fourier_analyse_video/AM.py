@@ -25,6 +25,7 @@ Separate out these as modules:
 	SUCCESS. Time on this step per frame is now 0.5s.
 2. Modify the seeking function to be more precise, and run for longer.
 	SUSCESS.
+2.4: Create a separate subprogram(White_line_plot ?) to plot the white line: NOT NECESSARY
 2.5: Replace the subprocess with direct ffmpy retrieval of the video?
 	#ffmpy.readthedocs.io/en/latest/examples.html#using-pipe-protocol
 3. Make an animation module
@@ -44,6 +45,7 @@ Separate out these as modules:
 add in the last two at the bottom
 Fourier analysis step can be optimized by replacing integration with FFT; but I chose not to because that has lower resolution.
 '''
+#saving each frame takes 1.5s!
 
 import numpy as np
 from PIL import Image
@@ -67,7 +69,8 @@ Green=1
 Blue= 2
 
 #Subprogram for fetching snippets of the video
-def get_frames(m1,s1, d):	#input time, get one second worth of frames
+#1
+def get_frames(m1, s1, d):	#input time, get one second worth of frames
 	import subprocess as sp
 	FFMPEG_BIN = "ffmpeg"
 	#0. convert time
@@ -105,6 +108,7 @@ def get_frames(m1,s1, d):	#input time, get one second worth of frames
 #Outside of this subprocess all data are ordered in ([fps])[y][x][color]
 
 
+#2
 def analogize(snippet):
 	snippet = snippet>>7
 	snippet = snippet*255	#now we have 25 frames of image with analogue pixel values
@@ -113,6 +117,7 @@ def analogize(snippet):
 
 
 #White line
+#2
 def analogueframe2line1(frame):#input frame, output line
 	uframe = np.transpose(frame)#we want to deal with color first instead [color][x][y]
 	W = [0]*xdim
@@ -147,6 +152,7 @@ def analogueframe2line1(frame):#input frame, output line
 
 
 #White+blue lines
+#3
 def frame2line2(frame):#input frame, output lines
 	uframe = np.transpose(frame)#we want to deal with color first instead
 	W = [0]*xdim
@@ -168,6 +174,7 @@ def frame2line2(frame):#input frame, output lines
 	return(W,B)
 
 
+#4
 def line2fouriergraph1(W):
 	from math import floor
 	from math import ceil
@@ -185,14 +192,15 @@ def line2fouriergraph1(W):
 	return(B)
 
 
-#Fast fourier transform
+'''#Fast fourier transform
 def line2fouriergraph2(line):
 	line_raw = np.real(np.fft.rfft(line))/1000
 	line_raw = np.split(line_raw, [nCo/2, len(line_raw)])[0]
 	k = np.arange(nCo/2)
 	return line_raw
+'''
 
-
+#5
 def smoothen(y_values):
 	from scipy.interpolate import spline
 	a = len(y_values)
@@ -202,34 +210,19 @@ def smoothen(y_values):
 	return (new_x_axis, b_smooth)
 
 
+#6
 def plotbg():
 	ax = plt.axes(xlim=(0, nCo), ylim=(-60,60))
 	#for line2fouriergraph1: nCo; 2:nCo/2, as x upper bound.
 	ax.set_axis_bgcolor((0, 0, 0))
 
+#7
 def plot(x, y, c):
 	plt.setp(plt.plot(x, y), color = c, linewidth = 3.0 )
 
-#_______________________________________________________________________nearing the main code_________________________________________________________
-def White(t1, t2):
-	#6th second,
-	snippet = get_frames(0, 10, 1.04)#snippet = a snippet of 1 second. [fps][ydim][xdim][color]
-	snippet = analogize(snippet)	
-
-	#1. For the 0-th frame:
-	White_line = analogueframe2line1(snippet[25])
-	#White_B_raw = line2fouriergraph1(White_line)
-	White_B_raw = line2fouriergraph1(White_line)
-	
-	(k, WB) = smoothen(White_B_raw)
-
-	plotbg()
-	plot(k, WB, 'w')
-	#plot(k, z, 'b')
-	#plot(x, w, 'r')
-	plt.show()
+#8
 '''
-def WhiteBlue(t1, t2):
+def MainWB(t1, t2):
 	#6th second,
 	snippet = get_frames(0, 10, 1.04)#snippet = a snippet of 1 second. [fps][ydim][xdim][color]
 	
@@ -251,21 +244,8 @@ def WhiteBlue(t1, t2):
 	#plot(x, w, 'r')
 	plt.show()
 '''
-#^Commented away to stop myself from changing the wrong program
+#^v Commented away to stop myself from changing the wrong program
 
-
-#Main code is one line long :)_________________________________________________________________________________________________________________________
-
-#WhiteBlue(1,2)
-
-#snippet = get_frames(0,6)
-#snippet = analogize(snippet)
-#frame = snippet[0]
-
-
-
-
-#Underconstruction:____________________________________________________________________________________________________________________________________
 '''
 def Anim
 
@@ -279,7 +259,9 @@ def time2frame_no(m, s):
 
 #Debugging modules are here: (generates all frames in one second of the video)_________________________________________________________________________
 
+
 #geneating test functions
+#9
 def Just_plot_White_line(frame):#input frame, output plot of line in the frame
 	White_line = analogueframe2line1(frame)
 	x = np.arange(len(White_line))
@@ -288,6 +270,7 @@ def Just_plot_White_line(frame):#input frame, output plot of line in the frame
 
 
 
+#10
 def generate_test_function():
 	x = np.linspace(0, nCo, nCo*10)
 	y = x
@@ -297,16 +280,18 @@ def generate_test_function():
 
 
 #2. re-construct the graph using the data.(optional)
+#11
 def plot2(W):
 	x = np.arange(len(W))
 	plt.plot(x, W)
 	plt.show()
-White(1,1)#_________________________________________________________________________Hi the main program's line is currently stored here._______________
+#_________________________________________________________________________Hi the main program's line is currently stored here.______________
 
 
 #Note to self: (tuple) [list]=[array]
 #PIL Image only accept tuple
 #Outside of this image processing subprogram all data are ordered in ([fps])[y][x][color]
+#12
 def save_1_second(snippet):
 	#expected input is frame = [[[[]*color]*xdim]*ydim]*fps
 	for i in range (0,1):	#Saving only 1 frame here:
@@ -318,8 +303,9 @@ def save_1_second(snippet):
 		
 		still = Image.new('RGB', (xdim,ydim))
 		still.putdata(linear_frame)
-		still.save('still_test'+str(i)+'.jpg', 'JPEG')
+		still.save('still_s=2'+str(i)+'.jpg', 'JPEG')
 #And this is for debugging the debugging code :)
+#13
 def printing(frame):
 	print(np.shape(frame))
 	print(type(frame))	
@@ -327,3 +313,23 @@ def printing(frame):
 	print(type(frame[0]))
 	print(np.shape(frame[0][0]))
 	print(type(frame[0][0]))
+
+
+def MainW(m, s, d):
+	#6th second,
+	snippet = get_frames(m, s, d)#snippet = a snippet of 1 second. [fps][ydim][xdim][color]
+	snippet = analogize(snippet)
+
+	#1. For the 0-th frame:
+	White_line = analogueframe2line1(snippet[25])
+	#White_B_raw = line2fouriergraph1(White_line)
+	White_B_raw = line2fouriergraph1(White_line)
+
+	(k, WB) = smoothen(White_B_raw)
+
+	plotbg()
+	plot(k, WB, 'w')
+	#plot(k, z, 'b')
+	#plot(x, w, 'r')
+	plt.show()
+MainW(1, 10, 2)
