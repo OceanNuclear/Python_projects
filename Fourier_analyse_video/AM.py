@@ -28,7 +28,12 @@ Separate out these as modules:
 2.4: Create a separate subprogram(White_line_plot ?) to plot the white line: NOT NECESSARY
 2.5: Replace the subprocess with direct ffmpy retrieval of the video?
 	#ffmpy.readthedocs.io/en/latest/examples.html#using-pipe-protocol
-3. Make an animation module
+	Apparently ffmpy is just the the subprocess below.
+	There's no performance benefit by carrying out this step.
+3. Make an animation module: SUCCESS
+	ATM I have fourier analysed the first snippet.
+
+	ATM the most amount of time is taken up by saving the animation itself.
 4. publish the first 73 s as an animation of the size of xdim/2 x ydim/2
 5. Add a filter that collect the colored lines
 6. interpolate the colored lines, then print it out
@@ -40,7 +45,8 @@ Separate out these as modules:
 12.Publish with the original audio.
 
 
-**find an audio module
+**Make an audio module
+https://stackoverflow.com/questions/9913032/ffmpeg-to-extract-audio-from-video
 **fourier transform the audio too, because why not
 add in the last two at the bottom
 Fourier analysis step can be optimized by replacing integration with FFT; but I chose not to because that has lower resolution.
@@ -130,8 +136,6 @@ def analogueframe2line1(frame):#input frame, output line
 		W[x] = yoffset-np.mean(sortedset)
 	return(W)
 
-
-
 '''
 #White line
 def analogueframe2line1(frame):#input frame, output line
@@ -210,15 +214,11 @@ def smoothen(y_values):
 	return (new_x_axis, b_smooth)
 
 
-#6
-def plotbg():
-	ax = plt.axes(xlim=(0, nCo), ylim=(-60,60))
-	#for line2fouriergraph1: nCo; 2:nCo/2, as x upper bound.
-	ax.set_axis_bgcolor((0, 0, 0))
+#6: assimilated module for setting bg color
 
 #7
 def plot(x, y, c):
-	plt.setp(plt.plot(x, y), color = c, linewidth = 3.0 )
+	plt.setp(ax.plot(x, y), color = c, linewidth = 3.0 )
 
 #8
 '''
@@ -313,23 +313,45 @@ def printing(frame):
 	print(type(frame[0]))
 	print(np.shape(frame[0][0]))
 	print(type(frame[0][0]))
+'''____________________________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________________________'''
+m = int(input("minute? "))
+s = int(input("second? "))
+d = float(input("length to be analyse? "))
+
+fig = plt.figure()
+ax = plt.axes(xlim=(0, nCo), ylim=(-100,100))	#for line2fouriergraph1: nCo, 2.
+ax.set_axis_bgcolor((0, 0, 0))			#for line2fouriergraph1: nCo; FFT:nCo/2, as x upper bound.
+
+ax.get_xaxis().set_visible(False)
+ax.get_yaxis().set_visible(False)
+fig.set_tight_layout(True)
+#x.axis('tight')
+#plt.axis('off')
+line, = ax.plot([], [], lw=3, color = 'w')	#set the line color and stuff.
 
 
-def MainW(m, s, d):
-	#6th second,
-	snippet = get_frames(m, s, d)#snippet = a snippet of 1 second. [fps][ydim][xdim][color]
-	snippet = analogize(snippet)
+def init():
+	line.set_data([], [])
+	return line,
 
+
+def frame2smline(i):
 	#1. For the 0-th frame:
-	White_line = analogueframe2line1(snippet[25])
+	White_line = analogueframe2line1(snippet[i])
 	#White_B_raw = line2fouriergraph1(White_line)
 	White_B_raw = line2fouriergraph1(White_line)
-
 	(k, WB) = smoothen(White_B_raw)
+	line.set_data(k, WB)
+	return line,
 
-	plotbg()
-	plot(k, WB, 'w')
-	#plot(k, z, 'b')
-	#plot(x, w, 'r')
-	plt.show()
-MainW(1, 10, 2)
+snippet = get_frames(m, s, d)#snippet = a snippet of 1 second. [fps][ydim][xdim][color]
+snippet = analogize(snippet)
+anim = animation.FuncAnimation(fig, frame2smline, init_func= init,
+                               frames = int(fps*d), interval = 40, blit= True)
+
+#saving the animation
+s = str(s).zfill(2)
+m = str(m).zfill(2)
+d = str(d)
+anim.save(m+'_'+s+'_dur='+d+'.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])
