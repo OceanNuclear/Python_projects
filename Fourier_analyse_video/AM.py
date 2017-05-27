@@ -22,18 +22,17 @@
 Next steps:
 Separate out these as modules:
 1. Filtering, needs optimization by analogizing?
-	SUCCESS. Time on this step per frame is now 0.5s.
+	SUCCESSFUL. Time on this step per frame is now 0.5s.
 2. Modify the seeking function to be more precise, and run for longer.
-	SUSCESS.
+	SUCCESSFUL.
 2.4: Create a separate subprogram(White_line_plot ?) to plot the white line: NOT NECESSARY
 2.5: Replace the subprocess with direct ffmpy retrieval of the video?
 	#ffmpy.readthedocs.io/en/latest/examples.html#using-pipe-protocol
 	Apparently ffmpy is just the the subprocess below.
 	There's no performance benefit by carrying out this step.
-3. Make an animation module: SUCCESS
+3. Make an animation module: SUCCESSFUL
 	ATM I have fourier analysed the first snippet.
-
-	ATM the most amount of time is taken up by saving the animation itself.
+3.5: Adjust size so that the area will be 640x360?
 4. publish the first 73 s as an animation of the size of xdim/2 x ydim/2
 5. Add a filter that collect the colored lines
 6. interpolate the colored lines, then print it out
@@ -57,7 +56,10 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib import animation
-#The more niche dependencies are put inside the subprograms
+from scipy.integrate import quad as inte
+from math import floor
+from math import ceil
+
 
 #0. Define variables
 xdim = 1280
@@ -67,7 +69,7 @@ nframe = 6642	#number of frames in this video, found by FFprobe
 color = 3
 num_pix = xdim*ydim 	#=number of pixels in one frame
 run_time = nframe/fps	#=265.68 seconds
-yoffset = ydim/2		#to counter the 
+yoffset = 0.5 + ydim/2	
 vid = "Arctic Monkeys - Do I Wanna Know- (Official Video).mp4"
 nCo = 60	#number of coefficient in fourier analysis
 Red = 0
@@ -180,31 +182,27 @@ def frame2line2(frame):#input frame, output lines
 
 #4
 def line2fouriergraph1(W):
-	from math import floor
-	from math import ceil
 	B = [0] * nCo	#note that the 0-th coefficient is used for cos instead of sine.
 	Y = [0] * nCo	#the product function to be integrated in the n-th harmonic.
-	import scipy.integrate as inte
 	Y[0] = lambda x : ((W[int(ceil(x))])*(x-floor(x))+W[int(floor(x))]*(ceil(x)-x))
-	B[0] = (2/xdim)*inte.quad(Y[0], 0, xdim-1)[0]
-
+	B[0] = (2/xdim)*inte(Y[0], 0, xdim-1)[0]
 	for n in range (0, nCo):
 		Y[n] = lambda x : np.sin(n*np.pi*x/xdim)*((W[int(ceil(x))])*(x-floor(x))+W[int(floor(x))]*(ceil(x)-x))
 		#the ceil and floor function are here to interpolate
-		B[n] += (2/xdim)*inte.quad(Y[n], 0, xdim-1)[0]
+		B[n] += (2/xdim)*inte(Y[n], 0, xdim-1)[0]
 		#Aesthetic: smooth out the line
 	return(B)
 
-
-'''#Fast fourier transform
+#5
+#Fast fourier transform
 def line2fouriergraph2(line):
 	line_raw = np.real(np.fft.rfft(line))/1000
 	line_raw = np.split(line_raw, [nCo/2, len(line_raw)])[0]
 	k = np.arange(nCo/2)
 	return line_raw
-'''
 
-#5
+
+#6
 def smoothen(y_values):
 	from scipy.interpolate import spline
 	a = len(y_values)
