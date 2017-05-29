@@ -1,5 +1,11 @@
 #!/home/oceanw/anaconda3/bin/python3
 #A project intended to fourier analyse the waves on a video.
+#Why? 
+#...
+#Because I can.
+#A project by Ocean Wong, throughout May of 2017.
+#Nuclear Science and Materials student at UoB.
+
 #OpenCV is not usable on Linux due to conflict issues.
 #So instead I will be using FFmpeg as a subprocess (pipe) to approach this problem.
 
@@ -33,7 +39,12 @@ Separate out these as modules:
 3. Make an animation module: SUCCESSFUL
 	ATM I have fourier analysed the first snippet.
 3.5: Adjust size so that the area will be 640x360?
-4. publish the first 73 s as an animation of the size of xdim/2 x ydim/2
+	Nah, that can wait.
+3.55: Now I need to redo most of the first segment with the new-found yoffset.
+3.6: Find the number of black frames at the start of the video, set this number to x, output a video of corresponding number of frames at 25 fps. 
+	Can duplicate this very code, modfiy the s float(input) instead of int(input), then start the fourier analysis at x+1 frame.
+4. publish the first 73s as an animation (of the size of xdim/2 x ydim/2?)
+	Published as 2 second clips.
 5. Add a filter that collect the colored lines
 6. interpolate the colored lines, then print it out
 7. Add in the colored lines' k space plot
@@ -69,7 +80,7 @@ nframe = 6642	#number of frames in this video, found by FFprobe
 color = 3
 num_pix = xdim*ydim 	#=number of pixels in one frame
 run_time = nframe/fps	#=265.68 seconds
-yoffset = 0.5 + ydim/2	
+yoffset = -0.25 + ydim/2	
 vid = "Arctic Monkeys - Do I Wanna Know- (Official Video).mp4"
 nCo = 60	#number of coefficient in fourier analysis
 Red = 0
