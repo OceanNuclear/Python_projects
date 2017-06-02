@@ -70,7 +70,7 @@ from matplotlib import animation
 from scipy.integrate import quad as inte
 from math import floor
 from math import ceil
-from math import sqrt
+
 
 #0. Define variables
 xdim = 1280
@@ -100,9 +100,7 @@ def get_frames(m1, s1, d):	#input time, get one second worth of frames
 	d = str(d)
 	#1. Open the video as a subprocess
 	command = [ FFMPEG_BIN,
-		'-ss', time_s,	#skip to t-1
 		'-i', vid,
-		'-ss', '1',
 		'-t', d,
 		'-f', 'image2pipe',
 		'-pix_fmt', 'rgb24',
@@ -193,20 +191,16 @@ def frame2line2(frame):#input frame, output lines
 
 #4
 def line2fouriergraph1(W):
-	A = [0] * nCo
-	B = [0] * nCo
-	C = [0] * nCo
-	Ycos = [0] * nCo	#the product function to be integrated in the n-th harmonic.
-	Ysin = [0] * nCo
-	for n in range (0, nCo):
-		Ycos[n] = lambda x : np.cos(n*np.pi*x/xdim)*((W[int(ceil(x))])*(x-floor(x))+W[int(floor(x))]*(ceil(x)-x))		
-		Ysin[n] = lambda x : np.sin(n*np.pi*x/xdim)*((W[int(ceil(x))])*(x-floor(x))+W[int(floor(x))]*(ceil(x)-x))
+	B = [0] * nCo	#note that the 0-th coefficient is used for cos instead of sine.
+	Y = [0] * nCo	#the product function to be integrated in the n-th harmonic.
+	Y[0] = lambda x : ((W[int(ceil(x))])*(x-floor(x))+W[int(floor(x))]*(ceil(x)-x))
+	B[0] = (2/xdim)*inte(Y[0], 0, xdim-1)[0]
+	for n in range (1, nCo):
+		Y[n] = lambda x : np.sin(n*np.pi*x/xdim)*((W[int(ceil(x))])*(x-floor(x))+W[int(floor(x))]*(ceil(x)-x))
 		#the ceil and floor function are here to interpolate
-		A[n] += (2/xdim)*inte(Ysin[n], 0, xdim-1)[0]
-		B[n] += (2/xdim)*inte(Ysin[n], 0, xdim-1)[0]
-		C[n] = sqrt(A[n]**2 + B[n]**2)
+		B[n] += (2/xdim)*inte(Y[n], 0, xdim-1)[0]
 		#Aesthetic: smooth out the line
-	return(C)
+	return(B)
 
 #5
 #Fast fourier transform
@@ -367,4 +361,4 @@ anim = animation.FuncAnimation(fig, frame2smline, init_func= init,
 s = str(s).zfill(2)
 m = str(m).zfill(2)
 d = str(d)
-anim.save(m+'_'+s+'_dur='+d+'cos.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])
+anim.save(m+'_'+s+'_dur='+d+'.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])
