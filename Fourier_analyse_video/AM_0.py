@@ -327,7 +327,7 @@ s = int(input("second? "))
 d = float(input("length to be analyse? "))
 
 fig = plt.figure()
-ax = plt.axes(xlim=(0, nCo), ylim=(-100,100))	#for line2fouriergraph1: nCo, 2.
+ax = plt.axes(xlim=(0, 25), ylim=(-60,60))	#for line2fouriergraph1: nCo, 2.
 ax.set_axis_bgcolor((0, 0, 0))			#for line2fouriergraph1: nCo; FFT:nCo/2, as x upper bound.
 
 ax.get_xaxis().set_visible(False)
@@ -346,8 +346,8 @@ def init():
 def frame2smline(i):
 	#1. For the 0-th frame:
 	White_line = analogueframe2line1(snippet[i])
-	#White_B_raw = line2fouriergraph1(White_line)
-	White_B_raw = line2fouriergraph1(White_line)
+	#White_B_raw = line2fouriergraph2(White_line)
+	White_B_raw = line2fouriergraph2(White_line)
 	(k, WB) = smoothen(White_B_raw)
 	line.set_data(k, WB)
 	return line,
