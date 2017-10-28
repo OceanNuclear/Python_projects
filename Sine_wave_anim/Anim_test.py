@@ -34,6 +34,7 @@ def animate(t):
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=11, interval=20, blit=True)
+#So I assume anim throws in x = 0, 1, 2, 3, 4, etc. into the animate(x).
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that
