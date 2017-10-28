@@ -68,7 +68,7 @@ A = 2*A #multiplied by two because the function is rotationally symmetric at x =
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure()
 ax = plt.axes(xlim=(0, 2*np.pi), ylim=(-1, 1))
-line, = ax.plot([], [], lw=2)
+line = ax.plot([], [], lw=3)
 
 # initialization function: plot the background of each frame (I didn't touch this part of the code)
 def init():
@@ -95,6 +95,6 @@ anim = animation.FuncAnimation(fig, animate, init_func=init,
 # the video can be embedded in html5.  You may need to adjust this for
 # your system: for more information, see
 # http://matplotlib.sourceforge.net/api/animation_api.html
-anim.save('fullwave'+str(n_max)+'.mp4', fps=60, extra_args=['-vcodec', 'libx264'])
+anim.save('temp'+str(n_max)+'.mp4', fps=60, extra_args=['-vcodec', 'libx264'])
 
 plt.show()
