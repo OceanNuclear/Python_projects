@@ -1,5 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python3
 #Code for generating a lognormal distribution, for purely testing purpose.
+#Unfinished.
 
 # coding: utf-8
 def Reset_x( mu , sigma ):
@@ -10,3 +11,4 @@ def Reset_x( mu , sigma ):
         if x [i] > 1:
             x[i] = 1
     return x
+	print(x)
