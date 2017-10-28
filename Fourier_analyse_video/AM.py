@@ -36,11 +36,11 @@ Separate out these as modules:
 	#ffmpy.readthedocs.io/en/latest/examples.html#using-pipe-protocol
 	Apparently ffmpy is just the the subprocess below.
 	There's no performance benefit by carrying out this step.
+	NOT NECESSARY
 3. Make an animation module: SUCCESSFUL
 	ATM I have fourier analysed the first snippet.
-3.5: Adjust size so that the area will be 640x360?
-	Nah, that can wait.
-3.55: Now I need to redo most of the first segment with the new-found yoffset.
+3.5: Now I need to redo most of the first segment with the new-found yoffset.
+3.55: Parse the fourier transform process into Fortran instead to speed it up.
 3.6: Find the number of black frames at the start of the video, set this number to x, output a video of corresponding number of frames at 25 fps. 
 	Can duplicate this very code, modfiy the s float(input) instead of int(input), then start the fourier analysis at x+1 frame.
 4. publish the first 73s as an animation (of the size of xdim/2 x ydim/2?)
@@ -51,7 +51,7 @@ Separate out these as modules:
 8. Animate each of the above segments
 9. String together these segments
 10.Add in black screen at appropriate times, and then publish
-11.shrink the original to half size and put it right next to the video.
+11.shrink the original to half size (640x360) and put it right next to the video.
 12.Publish with the original audio.
 
 
