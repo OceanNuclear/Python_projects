@@ -3,10 +3,19 @@
 #Rationale: I needed this as a solution to the neutron flux distribution around an infinite rod reactor
 
 import numpy as np
-import scipy.special.jn as jn
+from scipy.special import jn
 import matplotlib.pyplot as plt
-x = np.linspace(0,100, 10000)
-x = np.array(1j*x)
-y = jn(0, x)
-plt.plot(x,y)
+x = np.linspace(-100,100, 10000)
+#make an imaginary copy of x
+x_2 = np.array(1j*x)
+
+#Calculate the y value and then log-scale it
+y = jn(0, x_2)
+log_y = np.log(y)
+
+#Has to be plotted with real x values, thus we
+plt.plot(x,log_y)
 plt.show()
+
+'''Great! We now know that the J_0 ≈ e^|i*x| for xϵℝ 
+So this solution of neutron flux is unphysical (i.e. unnormalizable).'''
