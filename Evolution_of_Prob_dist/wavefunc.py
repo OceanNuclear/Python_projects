@@ -1,6 +1,7 @@
 #!/home/oceanw/anaconda3/bin/python3
+
 #Plot of probability distribution evolution of a normal gaussian wave function with a non-zero average momentum. (Potential = 0)
-#Algebaric funciton derived by Bash Mitchell (classmate)
+#Algebaric function derived by Bash Mitchell (classmate)
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,7 +25,7 @@ def animate(t):
 	x = np.linspace(-2*np.pi, 2*np.pi, int(1000*np.pi))
 	y = x-x
 	#Calculating the actual displacement at that particular time
-	y=np.exp((-a*x*x+b*x*(t/50)-b*b/2*(t/50)*(t/50))/(1+b*b*(t/50)*(t/50)/4))*1/np.sqrt(.5/(a*a)+b*b*(t/50)*(t/50)/2)
+	y=np.exp((-a*x*x+b*x*(t/50)-b*b/2*(t/50)*(t/50))/(1+b*b*(t/50)*(t/50)/4))*1/np.sqrt(1/(a*a)+b*b*(t/50)*(t/50)/4)
 		#Using t/50 because the frame rate is 50
 	line.set_data(x, y)
 	return line,
