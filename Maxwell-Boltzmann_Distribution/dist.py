@@ -3,8 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import constants as c
-from scipy.special import erf
-from scipy.special import lambertw
+from scipy.special import erfinv, lambertw, erf
 from numpy import sqrt, log, exp, pi
 #This program plots the (3D) Maxwell boltzmann distribution and integrate above and below a cutoff temperature.
 
@@ -67,6 +66,7 @@ T0_u_int="above"
 
 #Plotting 98% of the graph
 #Needs to be changed in 1D plotting
+#Make a switch inside the program to turn on/off redirection to iterative.py for plotting instead.
 #First simplify the constants
 k=m/(2*k_T)
 A=4*k**(3/2)/sqrt(pi) 
