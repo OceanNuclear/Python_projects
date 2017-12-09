@@ -1,5 +1,7 @@
 #!/home/oceanw/anaconda3/bin/python3
 
+#And I have just realized that the iterative method is useless now that I can simply use interpolation to find the point of intersection anyways.
+
 import numpy as np
 from scipy.special import erf, erfinv, lambertw
 from numpy import pi, sqrt, log, exp
