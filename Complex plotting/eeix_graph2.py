@@ -2,7 +2,7 @@
 # coding: utf-8
 import numpy as np
 import scipy.constants as k
-e = 2.718281828
+e = np.e
 t_n = 1001
 t = np.linspace(0,10,t_n)
 t = np.linspace(0,2*k.pi,t_n)
