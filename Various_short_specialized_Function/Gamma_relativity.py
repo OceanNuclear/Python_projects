@@ -1,5 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
 #This is my first time using def!
+#Takes velocity input and converts it into a gamma factor.
 import numpy as np
 import scipy.constants as c
 def gamma(v):

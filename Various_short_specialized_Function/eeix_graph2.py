@@ -1,5 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python3
 # coding: utf-8
+#Parametrically plots the e^(e^i*theta)) graph
 import numpy as np
 import scipy.constants as k
 e = np.e
