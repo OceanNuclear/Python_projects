@@ -1,4 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python3
+#Hypothesis: The sigmoidal shape of a learning curve can be explained by 
 #Code for generating a lognormal distribution, for purely testing purpose.
 #Unfinished.
 
@@ -30,5 +31,7 @@ for i in range (0,15):
 plt.plot(y)
 plt.show()
 
-#Conclusion: this approach of summing up random trials only gives the same result as integrating the lognormal function.
+#Conclusion: the approach of summing up random trials (of the sigma and mu value!) only gives the same result as integrating the lognormal function.
 #This model fails to reproduce the sigmoidal shape of the curve.
+
+#Next step: randomize sigmal and mu values.
