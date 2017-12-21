@@ -131,7 +131,7 @@ v0 = E2v(k_T0)
 indv0 = int (v0/dv)
 
 fraction = erf(sqrt(k)*v0)-2*sqrt(k/pi)*v0*exp(-k*v0*v0)
-filling = f*1 #Deary me, I dont' know why the fuck won't it work without *1. But it seems if I don't use an identity formula like this, I'll link filling up with f; changing filling[i] will also change the value of f[i]
+filling = f*1 # I dont' know why the eff won't it work without this line of *1. But it seems if I don't use an identity formula like this, I'll link filling up with f; changing filling[i] will also change the value of f[i]
 
 for i in range (0 , indv0):
 	filling[i] = 0.0
