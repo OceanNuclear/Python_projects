@@ -1,5 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python3
-#Plots a generalized cycloid.
+#Plots a generalized cycloid by parametric plotting,
+#where the parametric factor is theta
 
 import matplotlib.pyplot as plt
 import numpy as np
