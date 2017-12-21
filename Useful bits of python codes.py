@@ -1,10 +1,10 @@
-#Prepend the code with this line: 
-'#!/home/oceanw/anaconda3/bin/python3'
-(that's where my python environment is)
+#!/home/oceanw/anaconda3/bin/python3
+	#Prepend the code with this line: 
+	#(that's where my python environment is)
 
-#In terminal, type 
-'chmod +x code.py'
-'./code.py'
+'''In terminal, type '''
+chmod +x code.py
+./code.py
 
 '''input loops'''
 Tinput = str(input("Temperature T of the system (in keV or K) is: "))
@@ -41,3 +41,6 @@ Infile = str(input("What's the data's file name?\n"))
 '''definition of lists/tuple'''
 #[, , ] OR [[],[] ,[] ] OR [(),(),()] makes a list
 #(, , ) makes a tuple, so on and so forth
+
+'''To save on iPython'''
+get_ipython().magic('save FNF_erf_func 32 33 47 54-58 60')
