@@ -4,34 +4,45 @@
 #Unfinished.
 
 import matplotlib.pyplot as plt
-import random as rn
 import numpy as np
+from scipy.stats import poisson
 
-def Reset_x( mu , sigma ):
-	x = [0]*15
-	x[0] = rn.lognormvariate( mu , sigma )/15
-	for i in range( 1 , 15 ):
-		x[i] = x[i-1] + rn.lognormvariate( mu , sigma )/15 
-		if x [i] > 1:
-			x[i] = 1
+forgetting=0.1/15
+maxTrial=1000
+
+def Reset_x(lambda_j):
+	progress = [0]*15
+	progress[0] = poisson.rvs(lambda_j)/15
+
+	for i in range(1 ,15 ):
+		progress[i] = progress[i-1] + poisson.rvs(lambda_j)/15 -forgetting
+		if progress[i] > 1:
+			progress[i] = float(1)
+
 	#This creates a ceiling of 1 for the rest of the function.
-	return x
-x=[0]*100
-print(np.shape((x)))
-for j in range (0,100):
-	x[j] = Reset_x(0,1)
+	return progress
+x=np.zeros(shape=(maxTrial,15))
+for j in range (0,maxTrial):
+	randomNumber=np.random.uniform(3,17)
+	print(randomNumber)
+	x[j] = Reset_x(15/randomNumber)
 	#x[jth trial][ith time's]
+
+
+for j in range (0,10):
+	plt.plot(x[j])
+	#plot 10 of the random trials
+
+
 x = np.transpose(x)
-print(np.shape((x)))
 y = [0]* 15
-print(np.shape((x)))
+
 for i in range (0,15):
 	y[i]=np.mean(x[i])
 
-plt.plot(y)
+
+plt.plot(y,'r', linewidth=3)
 plt.show()
 
-#Conclusion: the approach of summing up random trials (of the sigma and mu value!) only gives the same result as integrating the lognormal function.
+#Conclusion: the approach of summing up random trials (of variable mu value) only gives the same result as integrating the lognormal function.
 #This model fails to reproduce the sigmoidal shape of the curve.
-
-#Next step: randomize sigmal and mu values.
