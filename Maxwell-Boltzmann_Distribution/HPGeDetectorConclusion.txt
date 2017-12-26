@@ -1,0 +1,3 @@
+mass of e/ mass of u = 0.0005485799093287202
+For room T: fraction = 4.01531030647e-11 (regardless of the mass, because the mass is only part of the constant that scales the velocity axis.)
+For Liquid Nitrogen: fraction = too close to zero, it got interpreted as zero. fml.
