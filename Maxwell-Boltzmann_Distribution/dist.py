@@ -36,7 +36,7 @@ def splitted(string):
 	item = string.split()
 	return item
 
-Tinput = str(input("Temperature T of the system (in keV or K) is: "))
+Tinput = str(input("Temperature T of the system (in eV or K) is: "))
 item = splitted(Tinput)
 print(item)
 T = float(item[0])
@@ -106,7 +106,7 @@ A=4*k**(3/2)/sqrt(pi)
 	#Needs to be changed in 1D plotting
 
 x_ax_start= 0.5*E2v(k_T)
-x_ax = 50*E2v(k_T) #50 times the temperature is arbitrarily chosen only.
+x_ax = 50*E2v(k_T) #50/sqrt(3) times the rms speed is arbitrarily chosen only.
 div= 1000
 dx = (x_ax - x_ax_start)/div
 
@@ -134,14 +134,18 @@ fraction = erf(sqrt(k)*v0)-2*sqrt(k/pi)*v0*exp(-k*v0*v0)
 filling = f*1 # I dont' know why the eff won't it work without this line of *1. But it seems if I don't use an identity formula like this, I'll link filling up with f; changing filling[i] will also change the value of f[i]
 
 for i in range (0 , indv0):
-	filling[i] = 0.0
+     try:
+          filling[i] = 0.0
+     except IndexError:
+          break
+	# if T0 is off the graph, then IndexError will occur.
 
 if (T0_u_int == "above"):
 	fraction = 1-fraction
 	filling = f - filling
 
 #Print the result
-print("Fraction of molecules with energy "+T0_u_int+str(T0)+str(T0_u)+" = " + str(fraction))
+print("Fraction of molecules with energy "+T0_u_int+str(T0)+str(T0_u)+" = " + str(fraction) + " ")
 #fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
 fig, (ax1) = plt.subplots( 1, 1, sharex=True)
 
