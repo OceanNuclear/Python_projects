@@ -82,6 +82,7 @@ def fitVar(a1, a2, b1, b2):
 	print("c= ",c)
 	'''
 
+
 	for n in range (loopTime):
 		print("	n=", (n+1) ," try;") 
 		a1 = a- ((a2-a1)/10)

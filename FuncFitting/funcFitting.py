@@ -79,6 +79,7 @@ for u in range (loopTime):
 			except ValueError: pass
 			aRange = np.linspace(a1, a2, zoomAccuracy)#if the Deviation(0) is still min, then the loop will restart
 
+
 		while (np.nanargmin(Deviation)==(zoomAccuracy-1)):
 			for n in range (zoomAccuracy):
 				Deviation[n] = Dev(x, y, dy, aRange[n], b)
