@@ -1,0 +1,32 @@
+0. Include whatever theory that needs to be included?
+	i) Decay scheme: explain that they can be looked up in some source
+	ii)Shape of the spectrum obtained
+1. Resolution section:
+	i)  Insert data of whole spectrum
+	ii) Insert data of high and low energy region separated
+	III)Show how it's better fitted to your own defined function (credit to the scipy code)
+	iv) Refer to appendix for the Zoomed In Spectra + tables for calculation
+2. Efficiency section
+	i) Geometric Efficiency value error propagation: refer to the back.
+	ii)Refer to appendix for the Zoomed In Spectra + tables for calculation, and error propagation of the geometric factor
+	iii)Show the general trend
+3. Calibrations:
+	i)  Refer to a 152 Eu spectrum at the back, plus the data fitting table, and where the error propagation and inversion of function is done.
+	ii) Show linear calibration, and the residuals' trend.
+	iii)Show quadratic removes this trend.
+	IV) attemp cubic fit?
+4. Conclusion:
+	i) Brief trend of Energy resolution,
+	ii)Brief trend of Efficiency,
+	iii)Summary of elements that was identified
+	IV) copy to book
+5. Improvement:
+	i) A better calibration function may be considered, as this one doesn't seem to decrease quickly enough.
+	ii) Semi-Automation can be implemented by some SQL code plugged into the nndc data base?
+5. In Appendix, include:
+	i)LaTeX Derivation
+	ii)Graphs: 
+		Explain where does the value come from, i.e. centroid and counts
+		(the number of counts is summed and subtracted by the background by the Fit() function which is part of the ROOT program developed by CERN. )
+	iii)Sources!
+	iv)Label equations and figures
