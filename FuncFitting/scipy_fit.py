@@ -50,6 +50,9 @@ db = np.sqrt(var_b)
 yCalc = fittedFunc(x,a,b)
 residual = y- yCalc
 
+chiSq = sum( (residual/dy)**2 )
+chiSqPerDoF = str( '{:0=3.2f}'.format( chiSq/numData ) )
+
 aString=('%.2e' % a)
 bString=('%.2e' % b)
 aPlace= aString[-3:]
@@ -59,10 +62,13 @@ if(bPlace[:1]=="e"): bPlace=bPlace[-2:]
 daString= str( '{:0=2.2f}'.format( (da/10**int(aPlace)), aPlace=int(aPlace) )+"e"+aPlace )
 dbString= str( '{:0=2.2f}'.format( (db/10**int(bPlace)), bPlace=int(bPlace) )+"e"+bPlace )
 
+
+
+
 print("a=",a,"+\-",da)
 print("b=",b,"+\-",db)
 
-equation = ("a ="+aString+r'$\pm$'+daString+str('\n')+"b ="+bString+r'$\pm$'+dbString)
+equation = ("a ="+aString+r'$\pm$'+daString+str('\n')+"b ="+bString+r'$\pm$'+dbString +str('\n') + r'$\chi^2$' +"=" +chiSqPerDoF )
 
 Fit = ax1.plot(x,yCalc)
 ax1.legend(Fit, [equation])
