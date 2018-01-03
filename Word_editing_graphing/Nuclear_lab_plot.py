@@ -8,8 +8,9 @@ Min=0
 Max=1
 
 Count = [np.zeros(8192),]*(12)
-inFile = ["",]*(12)	
-
+inFile = ["",]*(12)
+plot = ["",]*12	
+t = []
 for spectrum in Chosen:
 	inFile[spectrum] = str("Unknown-Sample-09-10min-"+'{:0=3.0f}'.format( spectrum )+".Spe")
 	numLines = sum(1 for line in open(inFile[spectrum]))
@@ -21,5 +22,10 @@ for spectrum in Chosen:
 		Count[spectrum][channel] = int(f.readline())
 	
 	#plot
-	plt.semilogy(Count[spectrum])
+	t = str( '{:0=3.0f}'.format( spectrum*10 ) +" to "+ '{:0=3.0f}'.format( spectrum*10 +10 )+ " minutes")
+	plt.semilogy(Count[spectrum], label = t)
+	#t.append ( str( '{:0=3.0f}'.format( spectrum*10 ) +" to "+ '{:0=3.0f}'.format( spectrum*10 +10 )+ " minutes") )
+plt.legend() #Aarh yes I'm so happy finally got it working without having to use a handler!
+plt.xlabel("Channel number")
+plt.ylabel("Counts")
 plt.show()
