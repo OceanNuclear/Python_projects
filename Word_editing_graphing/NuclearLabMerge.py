@@ -1,5 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python3
-#This program extract two particular character from each line of a txt input file and then print them out
+# This program plots two spectra overlayed of one another.
 import numpy as np
 import matplotlib.pyplot as plt
 
