@@ -30,7 +30,8 @@ while (inFile != str("")):
 	y = np.array(y)
 	dy = np.array(dy)
 
-	xSmooth = np.linspace( np.min(x), np.max(x), len(x)*10)
+	for dataPoint in range (1, len(x)):
+		xSmooth = np.append( xSmooth, np.linspace( x[dataPoint-1], x[dataPoint], 10))
 	ySmooth = spline(x, y, xSmooth)
 
 	plt.plot(xSmooth, ySmooth)
