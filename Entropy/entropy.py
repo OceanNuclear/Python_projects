@@ -40,3 +40,5 @@ plt.ylabel("Entropy contribution(unit)")
 plt.show()
 
 #So after trimming out the large peaks in Rock.Spe, the entropy increases, i.e. it is more evenly distributed.
+
+#Next step (assuming I have the time) is to find the compressibility of information based on various protocals.
