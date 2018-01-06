@@ -48,7 +48,11 @@ print("Parsed ", numData, " data points.")
 da = np.sqrt(var_a)
 db = np.sqrt(var_b)
 yCalc = fittedFunc(x,a,b)
+
 residual = y- yCalc
+
+xSmooth = np.linspace(np.min(x), np.max(x), 1000)
+yCalcSmooth = fittedFunc(xSmooth, a, b)
 
 chiSq = sum( (residual/dy)**2 )
 chiSqPerDoF = str( '{:0=3.2f}'.format( chiSq/numData ) )
@@ -62,15 +66,13 @@ if(bPlace[:1]=="e"): bPlace=bPlace[-2:]
 daString= str( '{:0=2.2f}'.format( (da/10**int(aPlace)), aPlace=int(aPlace) )+"e"+aPlace )
 dbString= str( '{:0=2.2f}'.format( (db/10**int(bPlace)), bPlace=int(bPlace) )+"e"+bPlace )
 
-
-
-
+#printing the parameters
 print("a=",a,"+\-",da)
 print("b=",b,"+\-",db)
 
 equation = ("a ="+aString+r'$\pm$'+daString+str('\n')+"b ="+bString+r'$\pm$'+dbString +str('\n') + r'$\chi^2$' +"=" +chiSqPerDoF )
 
-Fit = ax1.plot(x,yCalc)
+Fit = ax1.plot(xSmooth,yCalcSmooth)
 ax1.legend(Fit, [equation])
 #legend(loc="upper left", bbox_to_anchor=(1,1)) #uncomment this line to move the legend outside of the plot area.
 ax2.errorbar(x, residual, yerr=dy, fmt='o')
