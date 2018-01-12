@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 entropyValue = str("Entropy is measured to be ="+ str(entropySum))
 plt.plot(entropy, label=entropyValue)
 print(entropyValue)
-print("which is ", 100*entropySum/np.log(numData),"% of the max entropy achievable (", np.log(numData), ")")
+print("which is ", 100*entropySum/np.log(numData),"% of the max entropy achievable (", np.log(numData), "), i.e. the data is"(100-100*entropySum/np.log(numData))"% compressible")
 print("Average number of bits (binary unit!) required to encode each datum = ", entropySum/np.log(2))
 plt.xlabel("channel")
 plt.ylabel("Entropy contribution(unit)")
