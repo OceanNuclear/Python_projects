@@ -3,6 +3,7 @@
 
 #program1 I don't even know what is going on
 
-x=1
-print(x)
+def dummy(x):
+	x=111
+	print(x)
 
