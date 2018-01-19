@@ -13,7 +13,7 @@ y = [90, 75, 64, 56, 41, 32, 21]
 dy= [7, 7, 6, 6, 5, 4, 6]
 
 def fittedFunc(x, a, b, c ):
-	yCalc = a*np.exp(-np.sqrt(x**2+c**2)/(b))/x
+	yCalc = a*np.exp(-np.sqrt(x**2+c**2)/(b))/np.sqrt(x**2+c**2)
 	return yCalc
 
 '''
@@ -38,18 +38,18 @@ y = np.array(y)
 dy = np.array(dy)
 
 guessA = 124
-guessB = 0.1
-guessC = 2
+guessB = 0.05
+guessC = 0.1
 
 dummy, (ax1, ax2) = plt.subplots(2, sharex=True)
-ax1.set_title(str(r'$a \frac{e^{-\frac{\sqrt{r^2 + c^2}}{b}}}{r}$,'), fontsize = 28)
+ax1.set_title(str(r'$a \frac{e^{-\frac{\sqrt{r^2 + c^2}}{b}}}{\sqrt{r^2 + c^2}}$,'), fontsize = 28)
 #ax1.set_suptitle("assume background =0")
 ax1.errorbar(x, y, yerr = dy, fmt ='o',)
 ax2.set_title("Residuals")
 ax2.plot(x,np.zeros(numData), linewidth=1)
 ax2.set_ylabel(r'count Rate ($s^{-1}$)')
 ax1.set_ylabel(r'count Rate ($s^{-1}$)')
-ax2.set_xlabel(r'Distance ($cm$)')
+ax2.set_xlabel(r'Distance ($m$)')
 
 print("Parsed ", numData, " data points.")
 
@@ -86,7 +86,7 @@ print("a=",a,"+\-",da)
 print("b=",b,"+\-",db)
 print("c=",c,"+\-",dc)
 
-equation = ("a ="+aString+r'$\pm$'+daString+str('\n')+"b ="+bString+r'$\pm$'+dbString +str('\n') +str('\n')+"c ="+cString+r'$\pm$'+dcString +str('\n') + r'$\chi^2$' +"=" +chiSqPerDoF )
+equation = ("a ="+aString+r'$\pm$'+daString+str('\n')+"b ="+bString+r'$\pm$'+dbString +str('\n')+"c ="+cString+r'$\pm$'+dcString +str('\n') + r'$\chi^2$' +"=" +chiSqPerDoF )
 
 Fit = ax1.plot(xSmooth,yCalcSmooth)
 ax1.legend(Fit, [equation])
