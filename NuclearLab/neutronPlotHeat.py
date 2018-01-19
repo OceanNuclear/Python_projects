@@ -2,7 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import itertools
+#import itertools
 import matplotlib.colors as colors
 #from scipy.interpolate import interp2d
 #from scipy.interpolate import Rbf
