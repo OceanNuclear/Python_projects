@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 #Max=1
 
 Count = [np.zeros(8192),]*(2)
-inFile = ["",]*(2)	
+inFile = ["",]*(2)
 
 for spectrum in range (2):
 	inFile[spectrum] = str("Unknown-Sample-"+'{:0=1.0f}'.format( spectrum+1 )+"-30mins"+".Spe")
