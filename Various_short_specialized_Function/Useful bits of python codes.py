@@ -2,6 +2,15 @@
 	#Prepend the code with this line: 
 	#(that's where my python environment is)
 
+def removeBrackets(array):
+	if np.shape(array)==():
+		print(array, "is EMPTY!")
+	print(np.shape(array))
+	while ( ( np.shape(array)[0]==1 ) & ( np.ndim(array>1) ) ):
+		array = array[0]
+	return array
+
+
 '''In terminal, type '''
 chmod +x code.py
 ./code.py
