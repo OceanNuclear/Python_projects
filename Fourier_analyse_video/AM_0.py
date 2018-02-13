@@ -141,9 +141,9 @@ def analogueframe2line1(frame):#input frame, output line
 	WT= [0]*xdim
 	for x in range (1, xdim):
 		WT[x] = np.sum(uframe[Red][x])/255
-		sortedset = np.argsort(uframe[Red][x])
+		sortedset = np.argsort(uframe[Red][x])#Find our their orders.
 		#Used this argsort step to replace the if-conditions
-		sortedset = np.split(sortedset, [int(ydim-WT[x]),ydim])[1]
+		sortedset = np.split(sortedset, [int(ydim-WT[x]),ydim])[1]#Find out the indices where the pixels are non-blank.
 		W[x] = yoffset-np.mean(sortedset)
 	return(W)
 

@@ -6,7 +6,7 @@ class empolyee:
 		self.pay = pay
 		self.email = first+ '.' + last + "@company.com"
 		if self.pay<55000: self.underpay = self.first+" is underpaid!"
-
+	tired = True
 emp1 = empolyee("Corey",'Schafer', 50000)
 emp2 = empolyee("Test", 'User', 60000)
 emp1.new = "random string"

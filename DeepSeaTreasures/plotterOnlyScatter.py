@@ -34,6 +34,7 @@ plt.show()
 
 for x in range (0,125):
 	plt.scatter(grain[x][0], grain[x][1])
+	plt.title("GRAIN"+str(x+1))
 	plt.show()
 
 #The code below demonstrate how to colour a single curve with multiple colours. I've given up on figuring out how it works.
