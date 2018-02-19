@@ -1,6 +1,21 @@
 #!/home/oceanw/anaconda3/bin/python3
 	#Prepend the code with this line: 
 	#(that's where my python environment is)
+import numpy as np
+
+
+
+def RootSumSq(array):
+	SUM = 0
+	for elem in np.ravel(array):
+		SUM += elem**2
+	return np.sqrt(SUM)
+
+def InverseSum(array):
+	SUM = 0
+	for elem in np.ravel(array):
+		SUM += 1/elem	
+	return (1/SUM)
 
 def removeBrackets(array):
 	if np.shape(array)==():

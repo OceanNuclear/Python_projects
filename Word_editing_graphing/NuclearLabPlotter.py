@@ -7,7 +7,7 @@ Count = np.zeros(8192)
 
 #name = str(input("What's its name? (ignoring Aut and .Spe)"))
 #inFile = str("Aut"+name+".Spe")
-inFile = str("Aut6-RockSample.Spe")
+inFile = str(input("What is the filename, without .txt?"))
 numLines = sum(1 for line in open(inFile))
 f = open(inFile, "r")
 f.seek(194)
