@@ -25,6 +25,9 @@ def removeBrackets(array):
 		array = array[0]
 	return array
 
+exec("%s = %f" % (cList[0],2))
+#converts the string that x represents
+#into the float that 2 represents (2.0)
 
 '''In terminal, type '''
 chmod +x code.py

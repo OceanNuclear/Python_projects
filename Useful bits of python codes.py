@@ -50,5 +50,7 @@ Infile = str(input("What's the data's file name?\n"))
 #(, , ) makes a tuple, so on and so forth
 x = np.zeros(shape=(5,2))
 
-'''To save on iPython'''
-get_ipython().magic('save FNF_erf_func 32 33 47 54-58 60')
+#For ipython:
+%save FNF_erf_func.py 32 33 47 54-58 60
+ctrl+s can be unfrozen by ctrl+q
+ctrl+r for reverse search
