@@ -114,7 +114,8 @@ def deNormalize(v):
 	return v/(abs(v[2]))
 
 def R_v(R):
-	R_inv = np.linalg.pinv(R)
+	#R_inv = np.linalg.pinv(R)
+	R_inv = R
 	I = np.identity(3)
 	Z = I[2] #assume pulling axis is the z axis.
 

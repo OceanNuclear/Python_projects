@@ -107,6 +107,7 @@ if __name__=="__main__":
 	#RotationMatrices2= ReadR("Matrices/128FrameRotationMatrices.txt")
 	
 	#curve = sphereFillingCurve(1, 6, duration, fps)
+	X, Y = [], []
 
 	def draw(f):
 		'''
@@ -124,14 +125,19 @@ if __name__=="__main__":
 		[Theta, Phi] = cartesian_spherical(r[0],r[1],r[2])
 
 		R, Angle = stereographicProjector(Theta,Phi)
-		X, Y = polar2D_xy(Angle, R)
-		line.set_data([X],[Y])
+		Xtemp, Ytemp = polar2D_xy(Angle, R)
+		X.append(Xtemp)
+		Y.append(Ytemp)
+		#line.set_data([X],[Y])
 
 		return (line,)
-	pic = 7
-	draw(pic)
-	saveName = "ForDavid/Frame1Rot"+str(pic+1)+"_Ocean_s_code.png"
-	plt.savefig(saveName)
+	for pic in range (8):
+		draw(pic)
+	line.set_data([X],[Y])
+	line.set_linestyle("")
+	#print(dir(line))
+	saveName = "ForDavid/Frame1RotAll"+"_Ocean_s_code.png"#str(pic+1)+
+	Zplt.savefig(saveName)
 
 	#anim = animation.FuncAnimation(fig, draw, init_func = BG, frames = int(fps*duration), interval = 40, blit=True)
 	#anim.save( 'XYAXIS.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])
