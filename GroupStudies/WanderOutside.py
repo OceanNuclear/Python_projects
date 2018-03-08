@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from quat import *
 tau = 2*pi
 from generalLibrary import *
-debug = False
+debug = True
 normal= not debug
 
 
@@ -43,10 +43,10 @@ def BG(CompletePoleFig=False):
 
 	if InversePoleFig: #Plot the boundary of Inverse pole figure
 		X,Y = InversePoleFigureLine()
-		ax.plot(X, Y, color='black')
+		ax.plot(X, Y, color='black')#, lw=0.8
 
 		s3 = sqrt(1/3)
-		theta_an, phi_an = cartesian_spherical(s3,s3,s3)
+		theta_an, phi_an = cartesian_spherical( s3,s3,s3 )
 		R_an, Angle_an = stereographicProjector(theta_an, phi_an)
 		x_an, y_an = polar2D_xy( Angle_an, R_an )
 		
@@ -71,8 +71,8 @@ if __name__=="__main__":
 	#ax = plt.Axes(fig, [0., 0., 1., 1.] )
 	ax.axis('off')
 
-	xlimits = expandAxisLimit(0, tan(pi/8) )
-	ylimits = expandAxisLimit(0,0.366) #0.366 is calculated above in the wasted bit of script (currently line 93)
+	xlimits = expandAxisLimit(0, tan(pi/8) , 3)
+	ylimits = expandAxisLimit(0,0.366, 3) #0.366 is calculated above in the wasted bit of script (currently line 93)
 	ax.set_xlim(xlimits)
 	ax.set_ylim(ylimits)
 	#ax.set_xlim([0, tan(pi/8)])
@@ -83,26 +83,63 @@ if __name__=="__main__":
 	ax.set_aspect(0.366/tan(pi/8))
 
 	BG()
-	ax.set_title("Initial(red) and final(blue) orientation of grains (relative to the pulling axis)")
-	
-	RotationMatrices = ReadR("Matrices/1FrameRotationMatrices.txt")
-	RotationMatrices2= ReadR("Matrices/128FrameRotationMatrices.txt")
-	
-	for n in range(len(RotationMatrices)):
-		v48 = R_v(RotationMatrices[n])
 
-		r = chooseIPpoint(v48)
+	RotationMatrices = ReadR("NewModel/1FrameRotationMatrices.txt")
+	numGrains = len(RotationMatrices)
+	ID = np.ones(numGrains, dtype=int)*48#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
 
-		[Theta, Phi] = cartesian_spherical(r[0],r[1],r[2])
+	for grain in range(numGrains):
+		v48 = R_v(RotationMatrices[grain])
+		ID[grain] = getIPpointID(v48)
 
+		r = v48[ID[grain]]
+		[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 		R, Angle = stereographicProjector(Theta,Phi)
 		X, Y = polar2D_xy(Angle, R)
-	
-		ax.scatter(X, Y , color = 'r', marker = 'o')
-		ax.plot(X2,Y2, markeredgecolor = 'b', markerfacecolor = 'none', marker='o')
 
+		ax.plot(X, Y , marker = 'o', markerfacecolor='none', markeredgecolor='black')
+		'''
 		ax.annotate("",xy=(X2, Y2), xycoords='data',
 			xytext=( X, Y ), textcoords='data',
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
-	plt.show()
+		'''
+	numFrame = 397
+	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
+	x_line = np.zeros([numGrains,numFrame])
+	y_line = np.zeros([numGrains,numFrame])
+
+	distance=np.zeros([numGrains,numFrame])
+
+	thresholdDistance=0.2
+	for frame in range (numFrame):
+		fileName = "NewModel/"+str(frame+1)+"FrameRotationMatrices.txt"
+		UpdatedMatrices = ReadR(fileName)
+		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
+		for grain in range(numGrains):
+			r = R_v(UpdatedMatrices[grain])[ID[grain]]
+			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
+			R, Angle = stereographicProjector(Theta,Phi)
+			X, Y = polar2D_xy(Angle, R)
+			if debug:
+				x_line[grain][frame] = X
+				y_line[grain][frame] = Y
+
+				dx = X - x_line[grain][frame-1]
+				dy = Y - y_line[grain][frame-1]
+				distance[grain][frame] = RootSumSq([ dx , dy ])
+				if distance[grain][frame]>thresholdDistance:
+					print("Anomaly detected at grain",grain,"of frame",frame+1,
+					"! This is because a distance of",'{:0=3.3f}'.format(distance[grain][frame]),
+					"is measured between frames.")
+					print("Previous frame is plotted at x=",x_line[grain][frame-1],
+					"y=",y_line[grain][frame-1],
+					"on the polar coordinate system, transformed to xy coordinates.")
+					print(" Current frame is plotted at x=", x_line[grain][frame],
+					"y=",y_line[grain][frame],
+					"on the polar coordinate system, transformed to xy coordinates.")
+
+	for grain in range(numGrains):
+		ax.plot(x_line[grain], y_line[grain], color='black', lw=0.8)
+	#plt.show()
+	#plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")

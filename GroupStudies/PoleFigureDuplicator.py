@@ -83,32 +83,61 @@ if __name__=="__main__":
 	ax.set_aspect(0.366/tan(pi/8))
 
 	BG()
-	ax.set_title("Initial(dot) and final(x) orientation of grains (relative to the pulling axis)")
+	ax.set_title("Initial(dot) and final(cross) orientation of grains (relative to the pulling axis)")
 	
-	RotationMatrices = ReadR("Matrices/1FrameRotationMatrices.txt")
-	RotationMatrices2= ReadR("Matrices/129FrameRotationMatrices.txt")
+	RotationMatrices = ReadR( "NewModel/1FrameRotationMatrices.txt" )
+	RotationMatrices2= ReadR( "NewModel/90FrameRotationMatrices.txt")
+	RotationMatrices3= ReadR("NewModel/180FrameRotationMatrices.txt")
+	RotationMatrices4= ReadR("NewModel/270FrameRotationMatrices.txt")
+	RotationMatrices5= ReadR("NewModel/360FrameRotationMatrices.txt")
 	
 	for n in range(len(RotationMatrices)):
 		v48 = R_v(RotationMatrices[n])
 		v48_2=R_v(RotationMatrices2[n])
+		v48_3=R_v(RotationMatrices3[n])
+		v48_4=R_v(RotationMatrices4[n])
+		v48_5=R_v(RotationMatrices5[n])
 
 		r = chooseIPpoint(v48)
 		r2= chooseIPpoint(v48_2)
+		r3= chooseIPpoint(v48_3)
+		r4= chooseIPpoint(v48_4)
+		r5= chooseIPpoint(v48_5)
 
-		[Theta, Phi] = cartesian_spherical(r[0],r[1],r[2])
+		[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 		[Theta2,Phi2]= cartesian_spherical(r2[0],r2[1],r2[2])
+		[Theta3,Phi3]= cartesian_spherical(r3[0],r3[1],r3[2])
+		[Theta4,Phi4]= cartesian_spherical(r4[0],r4[1],r4[2])
+		[Theta5,Phi5]= cartesian_spherical(r5[0],r5[1],r5[2])
 
 		R, Angle = stereographicProjector(Theta,Phi)
-		X, Y = polar2D_xy(Angle, R)
-	
+		X, Y = polar2D_xy(Angle, R)	
 		R2, Angle2 = stereographicProjector(Theta2,Phi2)
 		X2, Y2 = polar2D_xy(Angle2, R2)
+		R3, Angle3 = stereographicProjector(Theta3,Phi3)
+		X3, Y3 = polar2D_xy(Angle3, R3)
+		R4, Angle4 = stereographicProjector(Theta4,Phi4)
+		X4, Y4 = polar2D_xy(Angle4, R4)
+		R5, Angle5 = stereographicProjector(Theta5,Phi5)
+		X5, Y5 = polar2D_xy(Angle5, R5)
 
 		ax.scatter(X, Y , color = 'black', marker = '.')
-		ax.plot(X2,Y2, markeredgecolor = 'black', markerfacecolor = 'none', marker='x')
+		#ax.plot(X2,Y2, markeredgecolor = 'black', markerfacecolor = 'none', marker='x')
 
 		ax.annotate("",xy=(X2, Y2), xycoords='data',
 			xytext=( X, Y ), textcoords='data',
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
-	plt.show()
+		ax.annotate("",xy=(X3, Y3), xycoords='data',
+			xytext=( X2, Y2 ), textcoords='data',
+			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
+			)
+		ax.annotate("",xy=(X4, Y4), xycoords='data',
+			xytext=( X3, Y3 ), textcoords='data',
+			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
+			)
+		ax.annotate("",xy=(X5, Y5), xycoords='data',
+			xytext=( X4, Y4 ), textcoords='data',
+			arrowprops=dict(arrowstyle="->",connectionstyle="arc3")
+			)
+	plt.savefig("NewModel.png")

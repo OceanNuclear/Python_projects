@@ -35,8 +35,8 @@ def cartesian_spherical(x, y, z):
 
 #Plotters
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
-def expandAxisLimit(Min, Max):
-	offSet = 0.1*(Max-Min)
+def expandAxisLimit(Min, Max, fraction=0.1):
+	offSet = fraction*(Max-Min)
 	return [Min-offSet, Max+offSet]
 
 def Diag_xy(phi, r_lower=0, r_upper=1):
@@ -114,12 +114,8 @@ def deNormalize(v):
 	return v/(abs(v[2]))
 
 def R_v(R):
-	#R_inv = np.linalg.pinv(R)
-	R_inv = R
-	I = np.identity(3)
-	Z = I[2] #assume pulling axis is the z axis.
-
-	[x,y,z] = np.linalg.multi_dot([R_inv,Z]) #see where does the pulling axis lands.
+	Z = np.array([0,0,1]) #assume pulling axis is the z axis.
+	[x,y,z] = np.linalg.multi_dot([R,Z]) #see where does the pulling axis lands.
 	#Pick the vector that juts out of the top face:
 	return duplicate48Points(x,y,z)
 
@@ -147,7 +143,7 @@ def chooseIPpoint(arrayOf48pt):
 
 def getIPpointID(arrayOf48pt):
 	for n in range (len(arrayOf48pt)):
-		if ( sum(np.sign(arrayOf48pt[n])>-np.ones(arrayOf48pt[n]))==3# all components are non-negative.
+		if ( sum(np.sign(arrayOf48pt[n])>-np.ones(3))==3# all components are non-negative.
 			) and ( abs(arrayOf48pt[n][0])>=abs(arrayOf48pt[n][1])
 			) and ( abs(arrayOf48pt[n][0])<=abs(arrayOf48pt[n][2])
 			) and ( abs(arrayOf48pt[n][1])<=abs(arrayOf48pt[n][2]) ):
