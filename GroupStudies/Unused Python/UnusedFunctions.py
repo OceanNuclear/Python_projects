@@ -21,4 +21,3 @@ def getInput():
 	Phi = Phi*ConversionFactor
 
 	return Theta , Phi
-

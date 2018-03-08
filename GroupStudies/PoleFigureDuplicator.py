@@ -1,50 +1,14 @@
 #!/home/oceanw/anaconda3/bin/python
+from numpy import sin, cos, tan, arccos, arctan, sqrt, pi
 import numpy as np
-from scipy.constants import pi
-import math
 import matplotlib.pyplot as plt
-from numpy import sin, cos, tan, arccos, arctan, sqrt
 from quat import *
-tau = pi*2
-
-
-
-#General functions to switch coordinates.
-def polar2D_xy(Angle, R):
-	return R*cos(Angle), R*sin(Angle)
-
-def stereographicProjector(Theta, Phi):
-	return tan(Theta/2), Phi
-
-def spherical_cartesian(theta, phi):
-	x = sin(theta)*cos(phi)
-	y = sin(theta)*sin(phi)
-	z = cos(theta)
-	return [x,y,z]
-
-def cartesian_spherical( x, y, z):
-	Theta = arccos(z)
-	Phi = arctan(y/x)
-
-	if (type(x)==list) or (type(x)==np.ndarray):#If data type inputted is a list:
-		for n in range (len(x)):
-			if   np.sign(x[n])==-1:	Phi[n] += pi
-			elif (np.sign(x[n])==0) and (np.sign(y[n])==-1):	Phi[n]=3*pi/2
-			elif (np.sign(x[n])==0) and (np.sign(y[n])== 1):	Phi[n] = pi/2
-			elif (z[n]==1):	(Theta[n], Phi[n])= (0,0)
-
-	else: # i.e. all of them has len == 1:
-		if   np.sign(x)==-1:	Phi += pi
-		elif (np.sign(x)==0) and (np.sign(y)==-1):	Phi=3*pi/2
-		elif (np.sign(x)==0) and (np.sign(y)== 1):	Phi = pi/2
-		elif (z==1):	(Theta, Phi)= (0,0)
-
-	return [Theta, Phi]
+tau = 2*pi
+from generalLibrary import *
 
 
 
 #Background plotting functions
-'''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
 def DrawCircle( cTheta, cPhi, a = pi/2 ): # a is the angular radius
 	t = np.linspace(0,tau,400)
 	
@@ -99,105 +63,69 @@ def plotDiag2(phi):
 	X,Y=polar2D_xy([phi,]*2, [pi/6,1])
 	ax.plot( X,Y , color='g')
 
-def BG():
+def BG(CompletePoleFig=False):
 	for n in range (3):
 		plotCircle(pi/4, n*tau/4)
-
 	R, Phi = drawHalfCircle(pi/4, pi)
 
-	EdgeR, EdgeA = 0, 0
-
+	EdgeR = 0
+	EdgeA = 0
 	EdgeR = np.append(EdgeR, R)
 	EdgeA = np.append(EdgeA, Phi)
-
 	EdgeR = np.append(EdgeR, 0)
 	EdgeA = np.append(EdgeA, pi/4)
 
 	X,Y = polar2D_xy(EdgeA,EdgeR)
 	ax.plot(X, Y)
 
-	for n in range (8):
+	for n in range (2):
 		plotDiag(n*tau/8)
 		'''
 		if(n&0x1): #If n is odd:
 			plotDiag2(n*tau/8)
 			PointPlotter(0.96 , n*tau/8)
 		'''
-	ax.set_title("Initial(red) and final(blue) Pole Figures.")
-	"""
-	ax.annotate("These edges corresponds",	xy =[pi/4 , 0.52]		,color = 'black')
-	ax.annotate("to the 4 full edges,",	xy=[pi/4 -np.deg2rad(10), 0.48 ],color = 'b'	)
-	ax.annotate("the 4 half edges,",	xy=[pi/4 -np.deg2rad(20), 0.455],color = 'g'	)
+	if CompletePoleFig:
+		for n in range (2,8):
+			plotDiag(n*tau/8)
+			'''
+			if(n&0x1): #If n is odd:
+				plotDiag2(n*tau/8)
+				PointPlotter(0.96 , n*tau/8)
+			'''
+	ax.set_title("Initial(red) and final(blue) orientation of grains (relative to the pulling axis)")
+
+	s3 = sqrt(1/3)
+	theta_an, phi_an = cartesian_spherical(s3,s3,s3)
+	R_an, Angle_an = stereographicProjector(theta_an, phi_an)
+	x_an, y_an = polar2D_xy( R_an, Angle_an)
+
+	ax.annotate("[001]",	xy=[0,0],	color = 'black')
+	ax.annotate("[101]",	xy=[0,tan(pi/8)],color= 'black')
+	ax.annotate("[111]",	xy=[x_an,y_an], color = 'black')
+	'''
 	ax.annotate("and the four corners",	xy=[pi/4 -np.deg2rad(30), 0.44 ],color = 'r'	)
 	ax.annotate("of the top half of the cube",xy=[pi/4 -np.deg2rad(40),0.43],color = 'black')
-	"""
+	'''
 	return
-
-
-
-#Main functions
-'''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
-'''
-def PointPlotter(X, Y):
-	ax.scatter(X, Y, color='r', marker='o', zorder=100)
-	return
-'''
-def deNormalize(v):
-	return v/(abs(v[2]))
-
-def R_v(R):
-	R_inv = np.linalg.pinv(R)
-	I = np.identity(3)
-	Z = I[2] #assume pulling axis is the z axis.
-
-	[x,y,z] = np.linalg.multi_dot([R_inv,Z]) #see where does the pulling axis lands.
-	#Pick the vector that juts out of the top face:
-	return duplicate48Points(x,y,z)
-
-def duplicate48Points(x0,y0,z0): #Find the equivalent points relative to the z axis.
-	[x0,y0] = np.array([x0,y0])
-	x,y,z = [], [], []
-	
-	for n in range (8):
-		x.append((-1)**(n>>2) *x0); y.append((-1)**(n>>1) *y0); z.append((-1)**(n>>0) *z0)
-		x.append((-1)**(n>>2) *y0); y.append((-1)**(n>>1) *x0); z.append((-1)**(n>>0) *z0)
-		x.append((-1)**(n>>2) *x0); y.append((-1)**(n>>1) *z0); z.append((-1)**(n>>0) *y0)
-		x.append((-1)**(n>>2) *y0); y.append((-1)**(n>>1) *z0); z.append((-1)**(n>>0) *x0)
-		x.append((-1)**(n>>2) *z0); y.append((-1)**(n>>1) *x0); z.append((-1)**(n>>0) *y0)
-		x.append((-1)**(n>>2) *z0); y.append((-1)**(n>>1) *y0); z.append((-1)**(n>>0) *x0)
-
-	return np.array([x,y,z]).T
-
-def chooseIPpoint(arrayOf48pt):
-	for r in arrayOf48pt:
-		if ( sum(np.sign(r)>-np.ones(3))==3) and ( abs(r[0])>=abs(r[1]) ) and ( abs(r[0])<=abs(r[2]) ) and ( abs(r[1])<=abs(r[2]) ):
-			return r
-
-#Rotation matrix reader
-def ReadR(fileName):
-	f = open( str(fileName) )
-	Matrices = f.readlines()
-	f.close()
-	Matrices = np.reshape(Matrices, [-1,3])
-	Matrix = []
-	for n in range (len(Matrices)):
-		Matrix.append(	[np.array(Matrices[n][0].split() , dtype=float),
-				np.array( Matrices[n][1].split() , dtype=float),
-				np.array( Matrices[n][2].split() , dtype=float) ] )
-	#np.shape(Matrix) ==(n,3,3)
-	return Matrix
-
-
 
 #Controller bit
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
-
 if __name__=="__main__":
+	xdim = 1280
+	ydim = 720
+	DPI = 80
 	global fig
 	fig = plt.figure()
+	fig.set_tight_layout(True)
+	fig.patch.set_visible(False)
+
+	#fig.set_size_inches( int(xdim/DPI), int(ydim/DPI) )
 
 	global ax
+	#ax = plt.Axes(fig, [0., 0., 1., 1.] )
 	ax = plt.subplot(111)
+	ax.axis('off')
 	ax.set_xlim([0,tan(pi/8)])
 	ax.set_ylim([0,0.366])
 	ax.set_xticks([])
@@ -225,13 +153,12 @@ if __name__=="__main__":
 		X2, Y2 = polar2D_xy(Angle2, R2)
 
 		ax.scatter(X, Y , color = 'r', marker = 'o')
-		ax.scatter(X2,Y2, color = 'b', marker = 'o')
+		ax.plot(X2,Y2, markeredgecolor = 'b', markerfacecolor = 'none', marker='o')
 
 		ax.annotate("",
 			xy=(X2, Y2), xycoords='data',
 			xytext=(X, Y), textcoords='data',
-			arrowprops=dict(arrowstyle="-",
+			arrowprops=dict(arrowstyle="->",
 				connectionstyle="arc3"),
 				)
-	
 	plt.show()

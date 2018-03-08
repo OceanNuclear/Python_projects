@@ -11,40 +11,6 @@ from matplotlib import animation
 
 
 
-#General functions to switch coordinates.
-def polar2D_xy(Angle, R):
-	return R*cos(Angle), R*sin(Angle)
-
-def stereographicProjector(Theta, Phi):
-	return tan(Theta/2), Phi
-
-def spherical_cartesian(theta, phi):
-	x = sin(theta)*cos(phi)
-	y = sin(theta)*sin(phi)
-	z = cos(theta)
-	return [x,y,z]
-
-def cartesian_spherical( x, y, z):
-	Theta = arccos(z)
-	Phi = arctan(y/x)
-
-	if (type(x)==list) or (type(x)==np.ndarray):#If data type inputted is a list:
-		for n in range (len(x)):
-			if   np.sign(x[n])==-1:	Phi[n] += pi
-			elif (np.sign(x[n])==0) and (np.sign(y[n])==-1):	Phi[n]=3*pi/2
-			elif (np.sign(x[n])==0) and (np.sign(y[n])== 1):	Phi[n] = pi/2
-			elif (z[n]==1):	(Theta[n], Phi[n])= (0,0)
-
-	else: # i.e. all of them has len == 1:
-		if   np.sign(x)==-1:	Phi += pi
-		elif (np.sign(x)==0) and (np.sign(y)==-1):	Phi=3*pi/2
-		elif (np.sign(x)==0) and (np.sign(y)== 1):	Phi = pi/2
-		elif (z==1):	(Theta, Phi)= (0,0)
-
-	return [Theta, Phi]
-
-
-
 #Background plotting functions
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
 def DrawCircle( cTheta, cPhi, a = pi/2 ): # a is the angular radius
@@ -135,66 +101,6 @@ def BG():
 	"""
 	return []
 
-
-
-#Main functions
-'''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
-'''
-def PointPlotter(X, Y):
-	ax.scatter(X, Y, color='r', marker='o', zorder=100)
-	return
-'''
-def deNormalize(v):
-	return v/(abs(v[2]))
-
-def R_v(R):
-	R_inv = np.linalg.pinv(R)
-	I = np.identity(3)
-	Z = I[2] #assume pulling axis is the z axis.
-
-	[x,y,z] = np.linalg.multi_dot([R_inv,Z]) #see where does the pulling axis lands.
-	#Pick the vector that juts out of the top face:
-	return duplicate48Points(x,y,z)
-
-def duplicate48Points(x0,y0,z0): #Find the equivalent points relative to the z axis.
-	[x0,y0] = np.array([x0,y0])
-	x,y,z = [], [], []
-	
-	for n in range (8):
-		x.append((-1)**(n>>2) *x0); y.append((-1)**(n>>1) *y0); z.append((-1)**(n>>0) *z0)
-		x.append((-1)**(n>>2) *y0); y.append((-1)**(n>>1) *x0); z.append((-1)**(n>>0) *z0)
-		x.append((-1)**(n>>2) *x0); y.append((-1)**(n>>1) *z0); z.append((-1)**(n>>0) *y0)
-		x.append((-1)**(n>>2) *y0); y.append((-1)**(n>>1) *z0); z.append((-1)**(n>>0) *x0)
-		x.append((-1)**(n>>2) *z0); y.append((-1)**(n>>1) *x0); z.append((-1)**(n>>0) *y0)
-		x.append((-1)**(n>>2) *z0); y.append((-1)**(n>>1) *y0); z.append((-1)**(n>>0) *x0)
-
-	return np.array([x,y,z]).T
-
-def chooseIPpoint(arrayOf48pt):
-	for r in arrayOf48pt:
-		if ( sum(np.sign(r)>-np.ones(3))==3) and ( abs(r[0])>=abs(r[1]) ) and ( abs(r[0])<=abs(r[2]) ) and ( abs(r[1])<=abs(r[2]) ):
-			return r
-
-#Rotation matrix reader
-def ReadR(fileName):
-	f = open( str(fileName) )
-	Matrices = f.readlines()
-	f.close()
-	Matrices = np.reshape(Matrices, [-1,3])
-	Matrix = []
-	for n in range (len(Matrices)):
-		Matrix.append(	[np.array(Matrices[n][0].split() , dtype=float),
-				np.array( Matrices[n][1].split() , dtype=float),
-				np.array( Matrices[n][2].split() , dtype=float) ] )
-	#np.shape(Matrix) ==(n,3,3)
-	return Matrix
-
-def sphereFillingCurve( m,n , duration, fps):
-	r = np.linspace(0,1,duration*fps)
-	theta= sin(r) *pi
-	phi = r*n*tau
-	r = r*tau
-	return np.array([r, theta, phi], dtype=float).T
 
 
 #Controller bit
