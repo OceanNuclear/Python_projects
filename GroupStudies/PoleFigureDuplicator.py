@@ -47,6 +47,8 @@ def BG(CompletePoleFig=False):
 
 		s3 = sqrt(1/3)
 		theta_an, phi_an = cartesian_spherical(s3,s3,s3)
+
+		print(theta_an,phi_an)
 		R_an, Angle_an = stereographicProjector(theta_an, phi_an)
 		x_an, y_an = polar2D_xy( Angle_an, R_an )
 		

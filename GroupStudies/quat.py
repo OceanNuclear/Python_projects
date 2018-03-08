@@ -14,7 +14,7 @@ def normalize(v):
 	return v/RootSumSq(v)
 
 def CheckUnity(array, varName):
-	if abs(RootSumSq(array)-1)>1E-10:
+	if abs(RootSumSq(array)-1)>1E-9:
 		print("This",varName,"component's root sum squares is not unity!")
 		raise ValueError
 	return
