@@ -13,23 +13,6 @@ from matplotlib import animation
 
 #Background plotting functions
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
-def DrawCircle( cTheta, cPhi, a = pi/2 ): # a is the angular radius
-	t = np.linspace(0,tau,400)
-	
-	#Find the x,y,z coordinate of the centre
-	[x0, y0, z0] = spherical_cartesian(cTheta,cPhi)
-
-	#Find the x,y,z coordinates of the point directly below it, from which the plotting will start.
-	[xt, yt, zt] = spherical_cartesian( cTheta+pi/2,cPhi )
-
-	x1 = x0*cos(a) + sin(a)*sin(t)*(y0*zt-z0*yt) + sin(a)*cos(t)*y0*(xt*y0-yt*x0) - sin(a)*cos(t)*z0*(zt*x0-xt*z0)
-	y1 = y0*cos(a) + sin(a)*sin(t)*(z0*xt-x0*zt) + sin(a)*cos(t)*z0*(yt*z0-zt*y0) - sin(a)*cos(t)*x0*(xt*y0-yt*x0)
-	z1 = z0*cos(a) + sin(a)*sin(t)*(x0*yt-y0*xt) + sin(a)*cos(t)*x0*(zt*x0-xt*z0) - sin(a)*cos(t)*y0*(yt*z0-zt*y0)
-
-	[Theta,Phi] = cartesian_spherical(x1, y1, z1)
-
-	return Theta, Phi
-
 def plotCircle(cTheta, cPhi):
 	Theta, Phi = DrawCircle(cTheta , cPhi , a=pi/2) #Theta has to be restricted to less than pi/2
 	R, Angle = stereographicProjector(Theta, Phi)
@@ -37,26 +20,6 @@ def plotCircle(cTheta, cPhi):
 	X, Y = polar2D_xy(Angle, R)
 	ax.plot(X,Y, color='black', linestyle=':')
 	return [R,Angle]
-
-def drawHalfCircle(cTheta, cPhi, a = pi/2): # copy of the DrawCircle function above
-	t = np.linspace( pi , 1.19591*pi,100)
-	
-	#Find the x,y,z coordinate of the centre
-	[x0, y0, z0] = spherical_cartesian(cTheta,cPhi)
-
-	#Find the x,y,z coordinates of the point directly below it, from which the plotting will start.
-	[xt, yt, zt] = spherical_cartesian( cTheta+pi/2,cPhi )
-
-	x1 = x0*cos(a) + sin(a)*sin(t)*(y0*zt-z0*yt) + sin(a)*cos(t)*y0*(xt*y0-yt*x0) - sin(a)*cos(t)*z0*(zt*x0-xt*z0)
-	y1 = y0*cos(a) + sin(a)*sin(t)*(z0*xt-x0*zt) + sin(a)*cos(t)*z0*(yt*z0-zt*y0) - sin(a)*cos(t)*x0*(xt*y0-yt*x0)
-	z1 = z0*cos(a) + sin(a)*sin(t)*(x0*yt-y0*xt) + sin(a)*cos(t)*x0*(zt*x0-xt*z0) - sin(a)*cos(t)*y0*(yt*z0-zt*y0)
-
-	[Theta,Phi] = cartesian_spherical(x1, y1, z1)
-	R, Angle = stereographicProjector(Theta, Phi)
-
-	X, Y = polar2D_xy(Angle, R)
-	ax.plot(X,Y, color = 'b')
-	return R, Angle
 
 def plotDiag(phi):
 	X,Y=polar2D_xy([phi,]*2, [0,1])
@@ -66,6 +29,7 @@ def plotDiag(phi):
 def plotDiag2(phi):
 	X,Y=polar2D_xy([phi,]*2, [pi/6,1])
 	ax.plot( X,Y , color='g')
+	return
 
 def BG():
 	for n in range (3):
@@ -112,7 +76,7 @@ if __name__=="__main__":
 	#fig.add_axes(ax)
 	duration = 5
 	fps = 25
-
+	##Still needs to impliment the rest of the "tight layout"onto this file.
 	global ax
 	ax = plt.subplot(111)
 	ax.set_xlim([0,tan(pi/8)])
