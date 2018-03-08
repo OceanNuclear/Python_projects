@@ -28,7 +28,7 @@ def cartesian_spherical(x, y, z):
 	Theta = arccos(z)
 	Phi = arctan(np.divide(y,x))
 	Phi = np.nan_to_num(Phi)
-	Phi += np.array( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
+	Phi+= np.array( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
 	return [Theta, Phi]
 
 
