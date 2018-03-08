@@ -43,10 +43,10 @@ def BG(CompletePoleFig=False):
 
 	if InversePoleFig: #Plot the boundary of Inverse pole figure
 		X,Y = InversePoleFigureLine()
-		ax.plot(X, Y, color='black')#, lw=0.8
+		ax.plot(X, Y, color='black')
 
 		s3 = sqrt(1/3)
-		theta_an, phi_an = cartesian_spherical( s3,s3,s3 )
+		theta_an, phi_an = cartesian_spherical(s3,s3,s3)
 		R_an, Angle_an = stereographicProjector(theta_an, phi_an)
 		x_an, y_an = polar2D_xy( Angle_an, R_an )
 		
@@ -83,29 +83,23 @@ if __name__=="__main__":
 	ax.set_aspect(0.366/tan(pi/8))
 
 	BG()
-	ax.set_title("Initial(dot) and final(x) orientation of grains (relative to the pulling axis)")
+	ax.set_title("Initial(red) and final(blue) orientation of grains (relative to the pulling axis)")
 	
 	RotationMatrices = ReadR("Matrices/1FrameRotationMatrices.txt")
-	RotationMatrices2= ReadR("Matrices/129FrameRotationMatrices.txt")
+	RotationMatrices2= ReadR("Matrices/128FrameRotationMatrices.txt")
 	
 	for n in range(len(RotationMatrices)):
 		v48 = R_v(RotationMatrices[n])
-		v48_2=R_v(RotationMatrices2[n])
 
 		r = chooseIPpoint(v48)
-		r2= chooseIPpoint(v48_2)
 
 		[Theta, Phi] = cartesian_spherical(r[0],r[1],r[2])
-		[Theta2,Phi2]= cartesian_spherical(r2[0],r2[1],r2[2])
 
 		R, Angle = stereographicProjector(Theta,Phi)
 		X, Y = polar2D_xy(Angle, R)
 	
-		R2, Angle2 = stereographicProjector(Theta2,Phi2)
-		X2, Y2 = polar2D_xy(Angle2, R2)
-
-		ax.scatter(X, Y , color = 'black', marker = '.')
-		ax.plot(X2,Y2, markeredgecolor = 'black', markerfacecolor = 'none', marker='x')
+		ax.scatter(X, Y , color = 'r', marker = 'o')
+		ax.plot(X2,Y2, markeredgecolor = 'b', markerfacecolor = 'none', marker='o')
 
 		ax.annotate("",xy=(X2, Y2), xycoords='data',
 			xytext=( X, Y ), textcoords='data',
