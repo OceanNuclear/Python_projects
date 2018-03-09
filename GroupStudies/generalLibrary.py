@@ -107,11 +107,15 @@ def PointPlotter(X, Y):
 	return
 '''
 
+def naturalNum(Index):
+	if np.sign(Index)!=-1: return Index
+	else: return 0
+
 def normalize(r):
 	return r/RootSumSq(r)
 
 def deNormalize(v):
-	return v/(abs(v[2]))
+	return v/(2*abs(v[2]))
 
 def R_v(R):
 	Z = np.array([0,0,1]) #assume pulling axis is the z axis.

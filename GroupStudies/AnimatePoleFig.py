@@ -44,7 +44,7 @@ def BGIP():
 	ax.annotate("[001]",	xy=[0,0], xycoords='data', ha='right',	color = 'black')
 	ax.annotate("[101]",	xy=[tan(pi/8),0],xycoords='data',	color = 'black')
 	ax.annotate("[111]",	xy=[x_an,y_an],	xycoords='data',	color = 'black')
-	return []
+	return [line,]
 ''' #unuesd program, left here for reference.
 def BG():
 	for n in range (3):
@@ -85,21 +85,22 @@ if __name__=="__main__":
 	ax = plt.subplot(111)
 	ax.axis('off')
 
-	'''
+
 	xlimits = expandAxisLimit(0, tan(pi/8) )
 	ylimits = expandAxisLimit(0,0.366) #0.366 is calculated above in the wasted bit of script (currently line 93)
 	ax.set_xlim(xlimits)
 	ax.set_ylim(ylimits)
-	'''	
-	ax.set_xlim([0,tan(pi/8)])
-	ax.set_ylim([0,0.366])
+	
+	#ax.set_xlim([0,tan(pi/8)])
+	#ax.set_ylim([0,0.366])
 
 	ax.set_xticks([])
 	ax.set_yticks([])
 	ax.set_aspect(0.366/tan(pi/8))
 
+	global line
 	#line, = ax.plot([0,0+0.01], [0,0+0.01] , color = 'r', marker = 'o')
-	(line,) = ax.plot([0],[0], color = 'r', marker = 'o')
+	[line,] = ax.plot([0],[0], color = 'r', marker = 'o')
 
 	BGIP()
 
@@ -126,12 +127,16 @@ if __name__=="__main__":
 		R, Angle = stereographicProjector(Theta,Phi)
 		X, Y = polar2D_xy(Angle, R)
 		line.set_data([X],[Y])
+		return [line,]
 
-		return (line,)
-	pic = 7
-	draw(pic)
-	saveName = "ForDavid/Frame1Rot"+str(pic+1)+"_Ocean_s_code.png"
-	plt.savefig(saveName)
+	#pic = 7
+	#draw(pic)
+	#saveName = "ForDavid/Frame1Rot"+str(pic+1)+"_Ocean_s_code.png"
+	#plt.savefig(saveName)
+	#plt.show()
 
-	#anim = animation.FuncAnimation(fig, draw, init_func = BG, frames = int(fps*duration), interval = 40, blit=True)
-	#anim.save( 'XYAXIS.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])
+	anim = animation.FuncAnimation(fig, draw, init_func = BGIP, frames = int(8), interval = 40, blit=True)
+	List = dir(anim)
+	for item in List:
+		print(item)
+	#anim.save( 'Testanim.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])

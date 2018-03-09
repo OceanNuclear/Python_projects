@@ -73,9 +73,9 @@ def QuatToRotation(q):
 	else:
 		axis = "not applicable"
 
-	print("\n", "\t", "Rotation by")
+	print("\t", "Rotation by")
 	print("\t", 'theta =', np.rad2deg(theta), "degrees")
-	print("\t", "axis", axis)
+	print("\t", "axis=", axis)
 	return [theta, axis]
 def QuatToR(q):
 	CheckIfQuaternion(q)

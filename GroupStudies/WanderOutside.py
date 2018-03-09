@@ -74,8 +74,8 @@ if __name__=="__main__":
 	#ax = plt.Axes(fig, [0., 0., 1., 1.] )
 	ax.axis('off')
 
-	xlimits = expandAxisLimit(0, tan(pi/8) , 3)
-	ylimits = expandAxisLimit(0,0.366, 3) #0.366 is calculated above in the wasted bit of script (currently line 93)
+	xlimits = expandAxisLimit(0, tan(pi/8))
+	ylimits = expandAxisLimit(0,0.366) #0.366 is calculated above in the wasted bit of script (currently line 93)
 	ax.set_xlim(xlimits)
 	ax.set_ylim(ylimits)
 	#ax.set_xlim([0, tan(pi/8)])
@@ -114,7 +114,7 @@ if __name__=="__main__":
 
 	distance=np.zeros([numGrains,numFrame])
 
-	thresholdDistance=0.2
+	thresholdDistance = 0.2
 	for frame in range (numFrame):
 		fileName = "NewModel/"+str(frame+1)+"FrameRotationMatrices.txt"
 		UpdatedMatrices = ReadR(fileName)
@@ -133,7 +133,7 @@ if __name__=="__main__":
 				dy = Y - y_line[grain][naturalNum(frame-1)]
 				distance[grain][frame] = RootSumSq([ dx , dy ])
 				if distance[grain][frame]>thresholdDistance:
-					print("Anomaly detected at grain",grain,"of frame",frame+1,
+					print("Anomaly detected at grain with index",grain,"at frame",frame+1,
 					"! This is because a distance of",'{:0=3.3f}'.format(distance[grain][frame]),
 					"is measured between frames.")
 					print("Previous frame is plotted at x=",x_line[grain][frame-1],
@@ -144,6 +144,7 @@ if __name__=="__main__":
 					"on the polar coordinate system, transformed to xy coordinates.")
 
 	for grain in range(numGrains):
-		ax.plot(x_line[grain], y_line[grain], color='black', lw=0.8)
+		if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
+			ax.plot(x_line[grain], y_line[grain], color='black', lw=0.8)
 	plt.show()
 	#plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")

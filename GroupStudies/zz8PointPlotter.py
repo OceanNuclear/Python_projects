@@ -137,7 +137,7 @@ if __name__=="__main__":
 	line.set_linestyle("")
 	#print(dir(line))
 	saveName = "ForDavid/Frame1RotAll"+"_Ocean_s_code.png"#str(pic+1)+
-	Zplt.savefig(saveName)
+	plt.savefig(saveName)
 
-	#anim = animation.FuncAnimation(fig, draw, init_func = BG, frames = int(fps*duration), interval = 40, blit=True)
-	#anim.save( 'XYAXIS.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])
+	#anim = animation.FuncAnimation(fig, draw, init_func = BG, frames = int(8), interval = 40, blit=True)
+	#anim.save( 'Testanim.mp4', fps = 25, extra_args=['-vcodec', 'libx264'])
