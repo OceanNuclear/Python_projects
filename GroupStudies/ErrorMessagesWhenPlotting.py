@@ -1,3 +1,12 @@
+#!/home/oceanw/anaconda3/bin/python
+import numpy as np
+from Will import *
+from quat import *
+from generalLibrary import *
+
+
+
+'''
 #These are the error messages I've printed out plotting the grains.
 Calculating for frame= 002 / 397
 Calculating for frame= 003 / 397
@@ -407,5 +416,151 @@ Calculating for frame= 394 / 397
 Calculating for frame= 395 / 397
 Calculating for frame= 396 / 397
 Calculating for frame= 397 / 397
-
+'''
 #Conclusion: grain 52 and 114 were misbehaving, and giving errors at frame (215,271) and (260,369) respectively.
+#The matrices in question are:
+R = []
+#for grain 52, from
+R.append(
+[[-0.787184505148,-0.341087251353,-0.513809343842],
+[-0.477807561797,-0.189450681721,0.857792733173],
+[-0.389923696054,0.920743137992,-0.0138414267888]]
+)
+#to
+R.append(
+[[0.606997507728,-0.750398362787,-0.261641592142],
+[0.443276581229,0.592957005509,-0.672240925675],
+[0.659590705018,0.292068976005,0.69255744535]]
+)
+#and from 
+R.append(
+[[0.531181619599,-0.794209977844,-0.295087441435],
+[0.461840637916,0.56341050199,-0.685034182663],
+[0.710316346545,0.227594194434,0.666071745753]]
+)
+#to
+R.append(
+[[-0.833369927098,-0.446046736625,-0.326399867271],
+[-0.232858948652,-0.252232219387,0.939231397226],
+[-0.501269662598,0.858732330968,0.106336772142]]
+)
+
+#for grain 114, from
+R.append(
+[[-0.99520551281,-0.0121672763225,-0.0970460955367],
+[0.0975722427623,-0.054970237756,-0.993709177981],
+[0.00675608720775,-0.99841385725,0.0558938720944]]
+)
+#to
+R.append(
+[[0.987592764214,-0.0672607504567,0.141903218854],
+[0.124904175815,0.884143361296,-0.450210465826],
+[-0.0951812951012,0.46234890302,0.881574734744]]
+)
+#and from
+R.append(
+[[0.974819886318,-0.101414088911,0.198598519153],
+[0.196760954684,0.810272827774,-0.55203538952],
+[-0.104934817631,0.577211509882,0.80982439881]]
+)
+#to
+R.append(
+[[-0.99575092868,0.0742676124448,0.054446393579],
+[-0.0560836644023,-0.0201396320877,-0.998222929914],
+[-0.0730391033572,-0.997034962758,0.0242192572069]]
+)
+#And the reason why this happens is straightfoward:
+#We can see with the program below:
+#if __name__=="__main__":
+if False:
+	for n in range(len(R)):
+		if n>>2&0x1:	print("Grain 52")
+		else:		print("Grain 114")
+		#if n>>1&0x1:	print("")
+		#else:		print("")
+		if    n&0x1:	print(" After discontinuity")
+		else:		print("Before discontinuity")
+		q = RotToQuat(R[n])
+		QuatToRotation(q)
+
+#And the code above prints the following message
+'''
+Grain 114
+Before discontinuity
+ 	 Rotation by
+	 theta = 174.4064076071869 degrees
+	 axis [ 0.32291665 -0.63549613 -0.70133409]
+ After discontinuity
+ 	 Rotation by
+	 theta = 63.49627600529682 degrees
+	 axis [ 0.53877759 -0.51470934  0.66692803]
+
+Before discontinuity
+ 	 Rotation by
+	 theta = 67.64575509489788 degrees
+	 axis [ 0.49339262 -0.54354962  0.67905636]
+ After discontinuity
+ 	 Rotation by
+	 theta = 171.7425366903598 degrees
+	 axis [-0.28024721  0.60878683  0.74218602]
+
+Grain 52
+Before discontinuity
+ 	 Rotation by
+	 theta = 175.66635981044445 degrees
+	 axis [-0.03113035 -0.68684769  0.72613439]
+ After discontinuity
+ 	 Rotation by
+	 theta = 28.758495215253696 degrees
+	 axis [0.94837227 0.24638877 0.19970633]
+
+Before discontinuity
+ 	 Rotation by
+	 theta = 37.11190687384814 degrees
+	 axis [0.93577733 0.25153013 0.24708985]
+ After discontinuity
+ 	 Rotation by
+	 theta = 174.7692739274885 degrees
+	 axis [ 0.00651536  0.69918947 -0.71490673]
+'''
+#if __name__=="__main__":
+if False:
+	Axes = [
+	[ 0.32291665, -0.63549613, -0.70133409],
+	[ 0.53877759, -0.51470934,  0.66692803],
+	[ 0.49339262, -0.54354962,  0.67905636],
+	[-0.28024721,  0.60878683,  0.74218602],
+	[-0.03113035, -0.68684769,  0.72613439],
+	[0.94837227, 0.24638877, 0.19970633],
+	[0.93577733, 0.25153013, 0.24708985],
+	[ 0.00651536,  0.69918947, -0.71490673]]
+
+	for axis in Axes:
+		print(np.rad2deg(cartesian_spherical(axis[0], axis[1], axis[2])))
+	print("Or in multiples of pi:")
+	for axis in Axes:
+		print(cartesian_spherical(axis[0], axis[1], axis[2])/np.pi)
+
+#whichi gives the following list of axes:
+'''
+[134.53413646 -63.06336679]
+[ 48.16959086 -43.69123265]
+[ 47.23005238 -47.76924424]
+[ 42.08203463 114.71837301]
+[ 43.43670231 267.40492999]
+[78.48021346 14.56357573]
+[75.69462893 15.0450833 ]
+[135.63555587  89.46610777]
+
+#Or in multiples of pi:
+[ 0.74741187 -0.35035204]
+[ 0.26760884 -0.24272907]#Nearly a 90 degrees (0.480*pi) upwards tilt
+[ 0.26238918 -0.26538469]
+[0.23378908 0.63732429]#Nearly 1pi change in phi. (0.90)
+[0.24131501 1.48558294]
+[0.43600119 0.08090875]#Cluless! 0.194 change in theta, 1.40 change in phi.
+[0.42052572 0.0835838 ]
+[0.75353087 0.49703393]#0.333 change in theta, 0.413 change in phi.
+'''
+#accompanied by a rotation theta as stated below:
+np.array([0.96892449, 0.35275709, 0.37580975, 0.9541252 , 0.97592422, 0.15976942, 0.20617726, 0.97094041]) #in terms of multiples of pi

@@ -2,7 +2,7 @@
 from math import sqrt
 import numpy as np
 def RotToQuat(R):  #R is the rotation matrix
-	if( np((R[0][0] + R[1][1] + R[2][2]-1))<1E-10 ):
+	if( ((R[0][0] + R[1][1] + R[2][2]-1))<1E-10 ):
 		s = sqrt(1 + R[0][0] + R[1][1] + R[2][2])*2	#s=4*w
 		w = 0.25 * s
 		x = ( R[2][1] - R[1][2] ) /s

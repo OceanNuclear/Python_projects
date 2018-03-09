@@ -5,11 +5,14 @@ import matplotlib.pyplot as plt
 from quat import *
 tau = 2*pi
 from generalLibrary import *
-debug = True
+debug = False
 normal= not debug
 
 
 
+def naturalNum(Index):
+	if np.sign(Index)!=-1: return Index
+	else: return 0
 #Background plotting functions
 def plotCircle(cTheta, cPhi):
 	Theta, Phi = DrawCircle(cTheta , cPhi , a=pi/2) #Theta has to be restricted to less than pi/2
@@ -121,12 +124,13 @@ if __name__=="__main__":
 			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 			R, Angle = stereographicProjector(Theta,Phi)
 			X, Y = polar2D_xy(Angle, R)
-			if debug:
-				x_line[grain][frame] = X
-				y_line[grain][frame] = Y
 
-				dx = X - x_line[grain][frame-1]
-				dy = Y - y_line[grain][frame-1]
+			x_line[grain][frame] = X
+			y_line[grain][frame] = Y
+
+			if debug:
+				dx = X - x_line[grain][naturalNum(frame-1)]
+				dy = Y - y_line[grain][naturalNum(frame-1)]
 				distance[grain][frame] = RootSumSq([ dx , dy ])
 				if distance[grain][frame]>thresholdDistance:
 					print("Anomaly detected at grain",grain,"of frame",frame+1,
@@ -141,5 +145,5 @@ if __name__=="__main__":
 
 	for grain in range(numGrains):
 		ax.plot(x_line[grain], y_line[grain], color='black', lw=0.8)
-	#plt.show()
+	plt.show()
 	#plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")
