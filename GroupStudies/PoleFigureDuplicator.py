@@ -45,10 +45,7 @@ def BG(CompletePoleFig=False):
 		X,Y = InversePoleFigureLine()
 		ax.plot(X, Y, color='black')#, lw=0.8
 
-		s3 = sqrt(1/3)
-		theta_an, phi_an = cartesian_spherical( s3,s3,s3 )
-		R_an, Angle_an = stereographicProjector(theta_an, phi_an)
-		x_an, y_an = polar2D_xy( Angle_an, R_an )
+		x_an, y_an = getIPtip()
 		
 		ax.annotate("[001]",	xy=[0,0], xycoords='data', ha='right',	color = 'black')
 		ax.annotate("[101]",	xy=[tan(pi/8),0],xycoords='data',	color = 'black')
@@ -75,8 +72,6 @@ if __name__=="__main__":
 	ylimits = expandAxisLimit(0,0.366) #0.366 is calculated above in the wasted bit of script (currently line 93)
 	ax.set_xlim(xlimits)
 	ax.set_ylim(ylimits)
-	#ax.set_xlim([0, tan(pi/8)])
-	#ax.set_ylim([0,0.366])
 
 	ax.set_xticks([])
 	ax.set_yticks([])

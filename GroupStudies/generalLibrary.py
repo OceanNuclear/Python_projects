@@ -22,15 +22,6 @@ def spherical_cartesian(theta, phi):
 	z = cos(theta)
 	return [x,y,z]
 
-def cartesian_spherical(x, y, z):
-	x,y,z = np.array([x,y,z], dtype=float) #change the data type to the desired format
-
-	Theta = arccos(z)
-	Phi = arctan(np.divide(y,x))
-	Phi = np.nan_to_num(Phi)
-	Phi+= np.array( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
-	return np.array([Theta, Phi])
-
 
 
 #Plotters
@@ -66,8 +57,11 @@ def DrawCircle( cTheta, cPhi, a = pi/2 ): # a is the angular radius
 	return Theta, Phi
 
 def drawHalfCircle(cTheta, cPhi, a = pi/2): # copy of the DrawCircle function above
-	t = np.linspace( pi , 1.1959135*pi,100)#Need to prove that it's 1.1959.
-	
+	t = np.linspace( pi , pi+arccos(sqrt(2/3)),100)#But this one parametrically draws the RHS curve of the Inverse Pole Figure.
+	#i.e. plot the greater circle at the axis normalize([ 0,-1, 1]), starting at the highest point 
+	#(i.e. the point that is pi radians away from the bottom)
+	#to the point that touches the corner, i.e. arccos(sqrt(2/3)) down from the highest point.
+	#This corresponds to 1/2 of one of the top edge, from the centre to the side.
 	#Find the x,y,z coordinate of the centre
 	[x0, y0, z0] = spherical_cartesian(cTheta,cPhi)
 
@@ -97,16 +91,17 @@ def InversePoleFigureLine():
 	X,Y = polar2D_xy(EdgeA,EdgeR)
 	return [X,Y]
 
+def getIPtip():
+	s3 = sqrt(1/3)
+	theta_an, phi_an = cartesian_spherical(s3,s3,s3)
+	R_an, Angle_an = stereographicProjector(theta_an, phi_an)
+	x_an, y_an = polar2D_xy( Angle_an, R_an )
+	return x_an,y_an
+
 
 
 #Main functions
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
-'''
-def PointPlotter(X, Y):
-	ax.scatter(X, Y, color='r', marker='o', zorder=100)
-	return
-'''
-
 def naturalNum(Index):
 	if np.sign(Index)!=-1: return Index
 	else: return 0
@@ -155,9 +150,12 @@ def getIPpointID(arrayOf48pt):
 
 def choosePFpoint(arrayOf48pt):
 	pointList = []
-	for r in arrayOf48pt:
+	n = 0
+	while len(pointList)<24:
+		r = arrayOf48pt[n]
 		if ( np.sign(r[2])>-1): #z is non-zero
 			pointList.append(r)
+		n += 1
 	return pointList
 
 

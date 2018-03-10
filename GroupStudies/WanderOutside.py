@@ -48,10 +48,7 @@ def BG(CompletePoleFig=False):
 		X,Y = InversePoleFigureLine()
 		ax.plot(X, Y, color='black')#, lw=0.8
 
-		s3 = sqrt(1/3)
-		theta_an, phi_an = cartesian_spherical( s3,s3,s3 )
-		R_an, Angle_an = stereographicProjector(theta_an, phi_an)
-		x_an, y_an = polar2D_xy( Angle_an, R_an )
+		x_an, y_an = getIPtip()
 		
 		ax.annotate("[001]",	xy=[0,0], xycoords='data', ha='right',	color = 'black')
 		ax.annotate("[101]",	xy=[tan(pi/8),0],xycoords='data',	color = 'black')
@@ -78,8 +75,6 @@ if __name__=="__main__":
 	ylimits = expandAxisLimit(0,0.366) #0.366 is calculated above in the wasted bit of script (currently line 93)
 	ax.set_xlim(xlimits)
 	ax.set_ylim(ylimits)
-	#ax.set_xlim([0, tan(pi/8)])
-	#ax.set_ylim([0,0.366])
 
 	ax.set_xticks([])
 	ax.set_yticks([])
@@ -107,7 +102,7 @@ if __name__=="__main__":
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
 		'''
-	numFrame = 397
+	numFrame = 215
 	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
@@ -144,7 +139,8 @@ if __name__=="__main__":
 					"on the polar coordinate system, transformed to xy coordinates.")
 
 	for grain in range(numGrains):
-		if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
+		#if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
+		if True:
 			ax.plot(x_line[grain], y_line[grain], color='black', lw=0.8)
-	plt.show()
-	#plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")
+	#plt.show()
+	plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")

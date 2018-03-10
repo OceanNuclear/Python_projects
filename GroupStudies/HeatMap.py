@@ -10,6 +10,9 @@ tau = pi*2
 from scipy.interpolate import griddata
 from matplotlib import cm
 from generalLibrary import *
+from shapely.geometry.polygon import Polygon
+from shapely.geometry import Point
+import time
 
 
 
@@ -47,13 +50,9 @@ def BG(CompletePoleFig=False):
 
 	if InversePoleFig: #Plot the boundary of Inverse pole figure
 		X,Y = InversePoleFigureLine()
-		ax.plot(X, Y, color='black')
+		ax.plot(X, Y, color='black', lw=0.5)
 
-		s3 = sqrt(1/3)
-		theta_an, phi_an = cartesian_spherical(s3,s3,s3)
-		R_an, Angle_an = stereographicProjector(theta_an, phi_an)
-		x_an, y_an = polar2D_xy( Angle_an, R_an )
-		
+		x_an, y_an = getIPtip()
 		ax.annotate("[001]",	xy=[0,0], xycoords='data', ha='right',	color = 'black')
 		ax.annotate("[101]",	xy=[tan(pi/8),0],xycoords='data',	color = 'black')
 		ax.annotate("[111]",	xy=[x_an,y_an],	xycoords='data',	color = 'black')
@@ -73,42 +72,71 @@ if __name__=="__main__":
 	ax = plt.subplot(111)
 	ax.axis('off')
 
-	xlimits = expandAxisLimit(0, tan(pi/8) )
-	ylimits = expandAxisLimit(0,0.366) #0.366 is calculated above in the wasted bit of script (currently line 93)
+	y_max = getIPtip()[1]
+
+	xlimits = expandAxisLimit(0, tan(pi/8) ,0.01)
+	ylimits = expandAxisLimit(0, y_max ,0.01) #y_max is calculated above in the wasted bit of script (currently line 93)
+
 	ax.set_xlim(xlimits)
 	ax.set_ylim(ylimits)
 
 	ax.set_xticks([])
 	ax.set_yticks([])
-	ax.set_aspect(0.366/tan(pi/8))
+
+	yxratio = y_max/tan(pi/8)
+	ax.set_aspect(yxratio)
 
 	BG(CompletePoleFig=False)
 
-	RotationMatrices = ReadR("NewModel/120FrameRotationMatrices.txt")
-	rho = Readrho("NewModel/DislocationDensityFrame120UnaxialNew.txt")
+	frameNumstr=str(360)
+	print("Reading and plotting data for frame", frameNumstr)
+	RotationMatrices = ReadR("NewModel/"+frameNumstr+"FrameRotationMatrices.txt")
+	rho = Readrho("NewModel/DislocationDensityFrame"+frameNumstr+"UnaxialNew.txt")
+	#Duplicate each point by 24 times:
+	rho = (np.array([rho,]*24).T).ravel()
 
 	RFinal, AngleFinal = [], []
+
 	for n in range(len(RotationMatrices)):
 		v48 = R_v(RotationMatrices[n])
+		pointList = choosePFpoint(v48)
 
-		r = chooseIPpoint(v48)
+		for upVector in pointList:
+			[xl,yl,zl] = upVector
+			[Theta, Phi] = cartesian_spherical(xl,yl,zl)
 
-		[Theta, Phi] = cartesian_spherical(r[0],r[1],r[2])
+			RInt, AngleInt = stereographicProjector(Theta,Phi)
+			RFinal.append(RInt)
+			AngleFinal.append(AngleInt)
+	Xco, Yco = polar2D_xy( AngleFinal, RFinal )
+	points = np.array([Xco,Yco]).T
 
-		RInt, AngleInt = stereographicProjector(Theta,Phi)
-		RFinal.append(RInt); AngleFinal.append(AngleInt)
-	X, Y = polar2D_xy(AngleFinal, RFinal)
-	points = np.array([X,Y]).T
 
-	x, y = np.mgrid[0:tan(pi/8):200j, 0:0.366:100j]
+	print("Interpolating grain data...")
+	startTime = time.time()
+
+	xRes = 500
+	yRes = int(xRes*yxratio)
+	x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]
 
 	z = griddata(points, rho, (x, y), method='cubic')
-	#ax.scatter(X, Y , color = 'r', marker = 'o')
+	print("Time taken interpolate =",time.time()-startTime)
+	#takes in the (x_data, y_data), z(x_data,y_data), and interpolated data points.
+	#ax.scatter(points[:,0], points[:,1] , color = 'r', marker = 'o')
 
 	graph = ax.pcolor(x,y,z, cmap=cm.jet)
-	plt.title("Heat Map of Dislocation densities")
 
+	#Put white polygons outside of the inverse pole figure area to hide the irrelevant bits.
+	xBound, yBound = InversePoleFigureLine()
+
+	xBound = xBound[1:]
+	yBound = yBound[1:]
+	yUpper = yBound-yBound+ getIPtip()[0] +0.01#the 0.01 bodges for the slight edge that appears on top 
+
+	ax.fill_between(xBound, yBound, yUpper, color = 'w')
+
+	plt.title("Heat map of dislocation densities at frame "+frameNumstr)
 	plt.colorbar(graph, label = r"$m^{-2}$") #I think this is not part of ax, such that it is plotted outside of the figure.
 
-	plt.show()
-
+	#plt.show()
+	plt.savefig("HeatMappable/Frame"+frameNumstr+"DislocationDensity.png")

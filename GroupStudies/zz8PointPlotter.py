@@ -36,10 +36,7 @@ def BGIP():
 	X,Y = InversePoleFigureLine()
 	ax.plot(X, Y, color='black')
 
-	s3 = sqrt(1/3)
-	theta_an, phi_an = cartesian_spherical(s3,s3,s3)
-	R_an, Angle_an = stereographicProjector(theta_an, phi_an)
-	x_an, y_an = polar2D_xy( Angle_an, R_an )
+	x_an, y_an = getIPtip()
 	
 	ax.annotate("[001]",	xy=[0,0], xycoords='data', ha='right',	color = 'black')
 	ax.annotate("[101]",	xy=[tan(pi/8),0],xycoords='data',	color = 'black')
