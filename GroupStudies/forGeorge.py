@@ -1,8 +1,9 @@
 #!/home/oceanw/anaconda3/bin/python
 from numpy import arccos, arctan, pi
-#from numpy import sin, cos, tan, sqrt
+from numpy import sin, cos, tan, sqrt
 import numpy as np
 #tau = 2*pi
+from quat import *
 
 #This file is written for George's reference, from which he can translate the file into Mtex.
 
@@ -14,7 +15,7 @@ def R_v(R):
 	#Thus see where does the pulling axis lands
 	return [x,y,z]
 
-def cartesian_spherical(x, y, z):
+def cartesian_spherical(x, y, z): #input a unit vector, pointing in any direction in 3D space.
 	x,y,z = np.array([x,y,z], dtype=float) #change the data type to the desired format
 
 	theta = arccos(z)	#since theta = r*cos(z), and r = 1 in a unit sphere.
@@ -26,7 +27,17 @@ def cartesian_spherical(x, y, z):
 #Here's the function that you want to be looking at:
 #input your rotation matrices as RotationMatrices
 def R_in_Spherical_out(RotationMatrices):
-	Theta, Phi = [],[]
+	vList = []
 	for R in RotationMatrices:
-		v = R_v(R)
-	return v
+		vList.append(R_v(R))
+	return vList
+
+def writeR(theta, THETA, PHI):
+	#(THETA,PHI) gives the axis along which to rotate the sphere in; 
+	#theta is the r
+	#All of them are in in radians
+	x,y,z = spherical_cartesian(THETA, PHI)
+	s2 = sin(theta/2)
+	q = [cos(theta/2), s2*x, s2*y, s2*z]
+	QuatToR(q)
+	return QuatToR(q)

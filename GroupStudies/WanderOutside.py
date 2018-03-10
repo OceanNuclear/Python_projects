@@ -59,6 +59,8 @@ def BG(CompletePoleFig=False):
 		'''
 	return
 
+
+
 #Controller bit
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
 if __name__=="__main__":
@@ -102,7 +104,7 @@ if __name__=="__main__":
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
 		'''
-	numFrame = 215
+	numFrame = 1
 	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
