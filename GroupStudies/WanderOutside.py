@@ -7,6 +7,7 @@ tau = 2*pi
 from generalLibrary import *
 debug = False
 normal= not debug
+Taylor= True
 
 
 
@@ -104,7 +105,7 @@ if __name__=="__main__":
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
 		'''
-	numFrame = 1
+	numFrame = 214
 	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
@@ -144,5 +145,16 @@ if __name__=="__main__":
 		#if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
 		if True:
 			ax.plot(x_line[grain], y_line[grain], color='black', lw=0.8)
+	if Taylor:
+		linex, liney = [""]*5, [""]*5
+		linex[0], liney[0] = getTaylorCurveDiv()[:,:]
+		linex[1], liney[1] = getTaylorCurve2()[:,:]
+		for n in range (3):
+			linex[2+n], liney[2+n] = getTaylorCurve3()[:,n,:]
+		for n in range (5):
+			ax.plot(linex[n][:-1], liney[n][:-1], 'r')
+			ax.annotate("",xy=[linex[n][-2],liney[n][-2]], xytext =[linex[n][-1],liney[n][-1]], arrowprops=dict(color = 'r', arrowstyle= '<-'))
 	#plt.show()
-	plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")
+		ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames compared with Taylor Model prediction (in red)")
+		plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
+	else: 	plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")

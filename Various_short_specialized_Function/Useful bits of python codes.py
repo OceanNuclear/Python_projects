@@ -24,6 +24,9 @@ def removeBrackets(array):
 	while ( ( np.shape(array)[0]==1 ) & ( np.ndim(array>1) ) ):
 		array = array[0]
 	return array
+startTime = time.time()
+print("Process took time = ",time.time()-startTime)
+
 
 exec("%s = %f" % (cList[0],2))
 #converts the string that x represents

@@ -1,7 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
 import numpy as np
 from numpy import pi
-from Will import *
 from quat import *
 tau = pi*2
 from generalLibrary import *

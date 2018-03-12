@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from quat import *
 tau = 2*pi
+from scipy.interpolate.interpolate import interp1d
 #This file does not contain reading functions, as it simply does the job of mathematical processing.
 
 
@@ -21,6 +22,15 @@ def spherical_cartesian(theta, phi):
 	y = sin(theta)*sin(phi)
 	z = cos(theta)
 	return [x,y,z]
+
+def cartesian_spherical(x, y, z):
+	x,y,z = np.array([x,y,z], dtype=float) #change the data type to the desired format
+
+	Theta = arccos(z)
+	Phi = arctan(np.divide(y,x))
+	Phi = np.nan_to_num(Phi)
+	Phi+= np.array( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
+	return np.array([Theta, Phi])
 
 
 
@@ -98,6 +108,40 @@ def getIPtip():
 	x_an, y_an = polar2D_xy( Angle_an, R_an )
 	return x_an,y_an
 
+def getTaylorCurveDiv():
+	xdata = [0.2464348739, 0.1295609244]
+	y = [0.001275906, 0.1306574186]
+	x = np.linspace(max(xdata), min(xdata),60)
+	f = interp1d(xdata, y)
+	y = f(x)
+	return np.array([x,y])
+
+def getTaylorCurve2():
+	xdata = [0.2152941176, 0.1883823529, 0.158394958, 0.1276386555, 0.0930378151, 0.0561302521, 0.0007689076]
+	y = [0.0008297794, 0.0274612132, 0.0502737395, 0.0524971639, 0.0417500788, 0.022610688, -0.0003796481]
+	x = np.linspace(max(xdata), min(xdata),60)
+	f = interp1d(xdata, y, kind = 'cubic')
+	y = f(x)
+	return np.array([x,y])
+
+def getTaylorCurve3():
+	xdata, ydata = [], []
+	xdata.append([0.2967983193, 0.2691176471, 0.2429747899, 0.232210084, 0.2337478992, 0.249894958, 0.2775756303, 0.3091008403, 0.3437016807, 0.366])
+	ydata.append([0.0017620798, 0.0299169118, 0.0626499475, 0.096177521, 0.1358307248, 0.1755143645, 0.2304720326, 0.2823877101, 0.3343097952, 0.36714375])
+
+	xdata.append([0.2698865546, 0.2406680672, 0.2176008403, 0.1999159664, 0.1983781513, 0.2106806723, 0.2383613445, 0.2675798319, 0.3152521008, 0.3529285714, 0.3667689076])
+	ydata.append([0.0017060137, 0.0329576418, 0.0572595851, 0.0915352416, 0.1250820378, 0.1571326681, 0.1998903361, 0.238076208, 0.2968880252, 0.3450040179, 0.3679078519])
+
+	xdata.append([0.3560042017, 0.329092437, 0.3198655462, 0.3190966387, 0.3283235294, 0.3460084034, 0.3590798319, 0.366])
+	ydata.append([0.0018854254, 0.0491043592, 0.0833976366, 0.1428710347, 0.2183777574, 0.2847521008, 0.337391833, 0.36714375])
+
+	X, Y = [], []
+	for n in range (len(xdata)):
+		yi = np.linspace( min(ydata[n]), max(ydata[n]),60)
+		Y.append(  yi )
+		f = interp1d(ydata[n], xdata[n], kind = 'cubic')
+		X.append(f(yi))
+	return np.array([X,Y])
 
 
 #Main functions

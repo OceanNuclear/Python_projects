@@ -39,6 +39,12 @@ def RotToQuat(R):  #R is the rotation matrix
 	return Q
 #End of function written by Will Mead.
 
+def spherical_cartesian(theta, phi):
+	x = sin(theta)*cos(phi)
+	y = sin(theta)*sin(phi)
+	z = cos(theta)
+	return [x,y,z]
+
 def cartesian_spherical(x, y, z):
 	x,y,z = np.array([x,y,z], dtype=float) #change the data type to the desired format
 
@@ -156,10 +162,10 @@ def writeR(theta, THETA, PHI):
 	s2 = sin(theta/2)
 	q = [cos(theta/2), s2*x, s2*y, s2*z]
 	R = QuatToR(q)
-	line1 = str(R[0][0])+'\t'str(R[0][1])+'\t'str(R[0][2])
-	line2 = str(R[1][0])+'\t'str(R[1][1])+'\t'str(R[1][2])
-	line3 = str(R[2][0])+'\t'str(R[2][1])+'\t'str(R[2][2])
-	return line1+"\n"line2+"\n"line3
+	line1 = str(R[0][0])+'\t'+str(R[0][1])+'\t'+str(R[0][2])
+	line2 = str(R[1][0])+'\t'+str(R[1][1])+'\t'+str(R[1][2])
+	line3 = str(R[2][0])+'\t'+str(R[2][1])+'\t'+str(R[2][2])
+	return line1+"\n"+line2+"\n"+line3+"\n"
 
 def matrixMulti(A,B):
 	#optional: check that these two matrices are two dimentional and has the same dimension
