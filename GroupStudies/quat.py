@@ -64,21 +64,18 @@ def normalize(v):
 	return v/RootSumSq(v)
 
 def CheckUnity(array, varName="quarternion"):
-	if abs(RootSumSq(array)-1)>1E-9:
-		print("This",varName,"component's root sum squares is not unity!")
-		raise ValueError
+	if abs(RootSumSq(array)-1)>1E-3:
+		raise ValueError("This",varName,"component's root sum squares is not unity!")
 	return
 
 def CheckIfVector(v):
 	if np.shape(v)!=(3,):
-		print("This is not a vector!")
-		raise TypeError
+		raise TypeError("This is not a vector!")
 	return
 
 def CheckIfQuaternion(q):
 	if np.shape(q)!=(4,):
-		print("This is not a quaternion!")
-		raise TypeError
+		raise TypeError("This is not a quaternion!")
 	return
 
 def cross (u, v):

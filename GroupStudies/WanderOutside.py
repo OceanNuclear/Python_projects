@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 from quat import *
 tau = 2*pi
 from generalLibrary import *
-debug = False
+debug = True
 normal= not debug
-Taylor= True
+Taylor= False
 
 
 
@@ -96,16 +96,18 @@ if __name__=="__main__":
 		r = v48[ID[grain]]
 		[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 		R, Angle = stereographicProjector(Theta,Phi)
+
 		X, Y = polar2D_xy(Angle, R)
 
-		ax.plot(X, Y , marker = 'o', markerfacecolor='none', markeredgecolor='black')
+		#ax.plot(X, Y , marker = 'o', markerfacecolor='none', markeredgecolor='black')
 		'''
 		ax.annotate("",xy=(X2, Y2), xycoords='data',
 			xytext=( X, Y ), textcoords='data',
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
 		'''
-	numFrame = 214
+	preNumFrame=49
+	numFrame = 52
 	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
@@ -113,12 +115,14 @@ if __name__=="__main__":
 	distance=np.zeros([numGrains,numFrame])
 
 	thresholdDistance = 0.2
-	for frame in range (numFrame):
+	for frame in range (preNumFrame,numFrame):
 		fileName = "NewModel/"+str(frame+1)+"FrameRotationMatrices.txt"
 		UpdatedMatrices = ReadR(fileName)
 		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
 		for grain in range(numGrains):
-			r = R_v(UpdatedMatrices[grain])[ID[grain]]
+#			r = R_v(UpdatedMatrices[grain])[ID[grain]]
+			rList = R_v(UpdatedMatrices[grain])		#
+			r = chooseIPpoint(rList)			#
 			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 			R, Angle = stereographicProjector(Theta,Phi)
 			X, Y = polar2D_xy(Angle, R)
@@ -144,7 +148,7 @@ if __name__=="__main__":
 	for grain in range(numGrains):
 		#if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
 		if True:
-			ax.plot(x_line[grain], y_line[grain], color='black', lw=0.8)
+			ax.plot(x_line[grain][preNumFrame:], y_line[grain][preNumFrame:], color='black', lw=0.8)
 	if Taylor:
 		linex, liney = [""]*5, [""]*5
 		linex[0], liney[0] = getTaylorCurveDiv()[:,:]
@@ -152,9 +156,11 @@ if __name__=="__main__":
 		for n in range (3):
 			linex[2+n], liney[2+n] = getTaylorCurve3()[:,n,:]
 		for n in range (5):
-			ax.plot(linex[n][:-1], liney[n][:-1], 'r')
-			ax.annotate("",xy=[linex[n][-2],liney[n][-2]], xytext =[linex[n][-1],liney[n][-1]], arrowprops=dict(color = 'r', arrowstyle= '<-'))
-	#plt.show()
-		ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames compared with Taylor Model prediction (in red)")
-		plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
-	else: 	plt.savefig("GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")
+			ax.plot(linex[n][:-1], liney[n][:-1], 'r', alpha = 0.5)
+			ax.annotate("",xy=[linex[n][-2],liney[n][-2]], xytext =[linex[n][-1],liney[n][-1]], arrowprops=dict(color = 'r', arrowstyle= '<-'), alpha = 0.5)
+		ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames \n compared with Taylor Model prediction (in red)")
+		ax.set_aspect(0.366/tan(pi/8))
+		plt.show()
+		#plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
+	else: 	plt.show()
+		#plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")

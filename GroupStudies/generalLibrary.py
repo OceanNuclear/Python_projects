@@ -195,13 +195,30 @@ def getIPpointID(arrayOf48pt):
 def choosePFpoint(arrayOf48pt):
 	pointList = []
 	n = 0
-	while len(pointList)<24:
+	while len(pointList)<24:	#loop through all vectors in the array until we have 24 vectors.
 		r = arrayOf48pt[n]
 		if ( np.sign(r[2])>-1): #z is non-zero
 			pointList.append(r)
 		n += 1
 	return pointList
+def schmidFinder( vector,systemNum ):
+	vector = normalize(vector)
+	planeNorm = [1,1,1],[-1,-1,1],[-1,1,1],[1,-1,1]
+	direction = ([-1,0,1],[-1,1,0],[0,-1,1],
+		[0,1,1],[-1,1,0],[1,0,1],
+		[1,0,1],[1,1,0],[0,-1,1],
+		[0,1,1],[1,1,0],[-1,0,1])
+	cos_phi = np.dot( vector, normalize(planeNorm[int(np.floor(systemNum/3))]) )
+	cos_theta=np.dot( vector, normalize(direction[systemNum])		)
+	return cos_phi*cos_theta
 
+def generateV(num=100): #Generate 20 unit vectors that points upwards.
+	vList=[]
+	for iteration in range (num):
+		theta = arccos(np.random.uniform(0,1))
+		phi = np.random.uniform( 0,tau )
+		vList.append(spherical_cartesian(theta,phi))
+	return vList
 
 
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
