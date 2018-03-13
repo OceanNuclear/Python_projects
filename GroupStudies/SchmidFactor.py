@@ -24,12 +24,12 @@ def plotCircle(cTheta, cPhi):
 	R, Angle = stereographicProjector(Theta, Phi)
 
 	X, Y = polar2D_xy(Angle, R)
-	ax.plot(X,Y, color='black', linestyle=':')
+	ax.plot(X,Y, color='black', linestyle='--', lw=0.8)
 	return [R,Angle]
 
 def plotDiag(phi):
 	X,Y = Diag_xy(phi, 0,1)
-	ax.plot( X,Y , color='black', linestyle=':')
+	ax.plot( X,Y , color='black', linestyle='--', lw = 0.8)
 	return
 
 def plotDiag2(phi):
@@ -40,7 +40,7 @@ def BG(CompletePoleFig=False):
 	InversePoleFig= not CompletePoleFig
 	if CompletePoleFig:
 		for n in range (8):
-			ax.plot(Diag_xy(n*tau/8)[0],Diag_xy(n*tau/8)[1], color = 'black', linestyle = ':')
+			ax.plot(Diag_xy(n*tau/8)[0],Diag_xy(n*tau/8)[1], color = 'black', linestyle = '--', lw = 0.8)
 			if not (n&0x1): #for even cases, plot the circles.
 				plotCircle(pi/4, n*tau/8)
 			'''
@@ -87,42 +87,27 @@ if __name__=="__main__":
 	ax.set_xticks([])
 	ax.set_yticks([])
 
-	yxratio = y_max/tan(pi/8)
-#	yxratio = 1	
+	yxratio = y_max/tan(pi/8)#
+#	yxratio = 1		
 	ax.set_aspect(yxratio)
 
 	BG(CompletePoleFig=False)
 
-	#frameNumstr=str(360)
-	frameNumstr = "arbitraryData"
-	print("Reading and plotting data for frame", frameNumstr)
 	RFinal, AngleFinal = [], []
-	'''
-	v = [[0., 0., 1.],
-	[0.,         0.31622777, 0.9486833, ],
-	[0.,         0.4472136,  0.89442719,],
-	[0.,         0.70710678, 0.70710678,],
-	[-0.14002801,  0.14002801,  0.98019606,],
-	[-0.19245009,  0.19245009,  0.96225045,],
-	[-0.30151134,  0.30151134,  0.90453403,],
-	[-0.40824829,  0.40824829,  0.81649658,],
-	[-0.57735027,  0.57735027,  0.57735027,],
-	[-0.33333333,  0.66666667,  0.66666667,],
-	[-0.22941573,  0.6882472,   0.6882472, ]]
-	rho = [0,0,2,4,1,1.5,2,3,4,5,5]
-	RotationMatrices = np.zeros(np.shape(v))
-	'''
-#	RealData = True
-	vList = generateV(900)	#of shape (100,3)			#
-	RotationMatrices = np.zeros(np.shape(vList))			#
-	rho = []							#
+
+	vList = generateV(15000)	#of shape (N,3)			
+	RotationMatrices = np.zeros(np.shape(vList))			
+	rho = []
+	print( "Random data generated, calcuating schmid factor for each point...")
+	startTime = time.time()
+	#RealData = True
 	for n in range (len(RotationMatrices)):				
-#		if RealData:	v48 = R_v(RotationMatrices[n])
-#		else:		v48 = duplicate48Points(v[n][0], v[n][1], v[n][2])
-#		pointList = choosePFpoint(v48)
-#
-#		for upVector in pointList:
-#			[xl,yl,zl] = upVector
+	#	if RealData:	v48 = R_v(RotationMatrices[n])
+	#	else:		v48 = duplicate48Points(v[n][0], v[n][1], v[n][2])
+	#	pointList = choosePFpoint(v48)
+	#
+	#	for upVector in pointList:
+	#		[xl,yl,zl] = upVector
 		[xl,yl,zl] = vList[n]
 		[Theta, Phi] = cartesian_spherical(xl,yl,zl)
 		RInt, AngleInt = stereographicProjector(Theta,Phi)
@@ -130,21 +115,19 @@ if __name__=="__main__":
 		AngleFinal.append(AngleInt)
 
 		schmidFactor = []
-		for slipSystem in range (12):				#
+		for slipSystem in range (12):
 			schmidFactor.append(schmidFinder(vList[n], slipSystem))
-		rho.append(max(schmidFactor))	#
+		rho.append(max(schmidFactor))
 	Xco, Yco = polar2D_xy( AngleFinal, RFinal )
 
 	points = np.array([Xco,Yco]).T
-
+	print("Schmid factor calculation (excluding interpolation) took", time.time()-startTime)
 	xRes = 300
 	yRes = int(xRes*yxratio)
 
-	x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]
-#	x, y = np.mgrid[-1:1:(xRes*1j), -1:1:(yRes*1j)]
+	x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]#
+#	x, y = np.mgrid[-1:1:(xRes*1j), -1:1:(yRes*1j)]		
 	z = griddata(points, rho, (x, y), method='cubic')
-	#takes in the (x_data, y_data), z(x_data,y_data), and interpolated data points.
-	#ax.scatter(points[:,0], points[:,1] , color = 'r', marker = 'o')
 
 	#Plot the colormap itself.
 	print("starting to plot the heat map...")
@@ -158,11 +141,11 @@ if __name__=="__main__":
 	yBound = np.append( yBound[1:], 0 )
 	yUpper = yBound-yBound+ getIPtip()[0] +0.01#the 0.01 bodges for the slight edge that appears on top 
 
-	ax.fill_between(xBound, yBound, yUpper, color = 'w')
+	ax.fill_between(xBound, yBound, yUpper, color = 'w')	#
 
 	#Plotting the non-pole Figure elements
 	plt.title("Schmid Factor of cubic crystals")
-	plt.colorbar(graph, label="") #I think this is not part of ax, such that it is plotted outside of the figure.
+	plt.colorbar(graph)
 
 	#plt.show()
-	plt.savefig("Schmid Factor of all 12 slip systems.png")
+	plt.savefig("SchmidFactorInversePoleFigure_highRes.png")
