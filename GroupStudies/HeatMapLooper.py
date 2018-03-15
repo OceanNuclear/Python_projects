@@ -150,11 +150,11 @@ for name in ["MaxShearStresses_"]:
 
 		points = np.array([Xco,Yco]).T
 
-		xRes = 500
+		xRes = 640
 		yRes = int(xRes*yxratio)
 		x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]
 
-		z = griddata(points, rho, (x, y), method='cubic')
+		z = griddata(points, rho, (x, y), method='nearest')
 		#takes in the (x_data, y_data), z(x_data,y_data), and interpolated data points.
 		#ax.scatter(points[:,0], points[:,1] , color = 'r', marker = 'o')
 
@@ -167,6 +167,7 @@ for name in ["MaxShearStresses_"]:
 
 		#Plot the actual orientations over it.
 		ax.plot(Xip, Yip, color='black', linestyle='None', marker = 'x')
+
 		#Put white polygons outside of the inverse pole figure area to hide the irrelevant bits.
 		xBound, yBound = InversePoleFigureLine()
 
@@ -181,5 +182,5 @@ for name in ["MaxShearStresses_"]:
 		plt.colorbar(graph, label = r"$m^{-2}$") #I think this is not part of ax, such that it is plotted outside of the figure.
 
 		#plt.show()
-		plt.savefig("HeatMappable/MaxShearStress/NewestData/Frame"+frameNumstr+name+"_3WithOldRotationMatrices.png")
+		plt.savefig("HeatMappable/MaxShearStress/Frame"+frameNumstr+name+"_nearestInterp.png")
 		#plt.savefig("HeatMappable/Arbitrary Dislocation_OceansCode.png")

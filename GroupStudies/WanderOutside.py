@@ -85,7 +85,7 @@ if __name__=="__main__":
 
 	BG()
 
-	RotationMatrices = ReadR("OldExtraction/1FrameRotationMatrices.txt")
+	RotationMatrices = ReadR("LiterallyEveryPoint/1FrameRotationMatrices.txt")
 	numGrains = len(RotationMatrices)
 	ID = np.ones(numGrains, dtype=int)*48#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
 
@@ -106,8 +106,8 @@ if __name__=="__main__":
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
 		'''
-	preNumFrame=44
-	numFrame = 52
+	preNumFrame=0
+	numFrame = 198
 	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
@@ -116,13 +116,14 @@ if __name__=="__main__":
 
 	thresholdDistance = 0.2
 	for frame in range (preNumFrame,numFrame):
-		fileName = "OldExtraction/"+str(frame+1)+"FrameRotationMatrices.txt"
+		fileName = "LiterallyEveryPoint/"+str(frame+1)+"FrameRotationMatrices.txt"
 		UpdatedMatrices = ReadR(fileName)
 		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
 		for grain in range(numGrains):
-#			r = R_v(UpdatedMatrices[grain])[ID[grain]]
-			rList = R_v(UpdatedMatrices[grain])		#
-			r = chooseIPpoint(rList)			#
+			
+			r = R_v(UpdatedMatrices[grain])[ID[grain]]	#
+#			rList = R_v(UpdatedMatrices[grain])		
+#			r = chooseIPpoint(rList)			
 			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 			R, Angle = stereographicProjector(Theta,Phi)
 			X, Y = polar2D_xy(Angle, R)
@@ -162,5 +163,5 @@ if __name__=="__main__":
 		ax.set_aspect(0.366/tan(pi/8))
 		plt.show()
 		#plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
-	else: 	plt.show()
-		#plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+".png")
+	else: 	#plt.show()
+		plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+".OfAllGaussPoints.png")
