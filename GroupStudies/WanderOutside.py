@@ -8,6 +8,7 @@ from generalLibrary import *
 debug = True
 normal= not debug
 Taylor= False
+graphicalAvg = True
 
 
 
@@ -87,6 +88,7 @@ if __name__=="__main__":
 
 	RotationMatrices = ReadR("LiterallyEveryPoint/1FrameRotationMatrices.txt")
 	numGrains = len(RotationMatrices)
+	numGauss = 8
 	ID = np.ones(numGrains, dtype=int)*48#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
 
 	for grain in range(numGrains):
@@ -107,10 +109,13 @@ if __name__=="__main__":
 			)
 		'''
 	preNumFrame=0
-	numFrame = 198
+	numFrame = 397
 	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
+
+	x_avg = np.zeros([int(numGrains/numGauss),numFrame])
+	y_avg = np.zeros([int(numGrains/numGauss),numFrame])
 
 	distance=np.zeros([numGrains,numFrame])
 
@@ -120,10 +125,10 @@ if __name__=="__main__":
 		UpdatedMatrices = ReadR(fileName)
 		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
 		for grain in range(numGrains):
-			
 			r = R_v(UpdatedMatrices[grain])[ID[grain]]	#
 #			rList = R_v(UpdatedMatrices[grain])		
 #			r = chooseIPpoint(rList)			
+
 			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 			R, Angle = stereographicProjector(Theta,Phi)
 			X, Y = polar2D_xy(Angle, R)
@@ -131,6 +136,9 @@ if __name__=="__main__":
 			x_line[grain][frame] = X
 			y_line[grain][frame] = Y
 
+			if graphicalAvg:
+				x_avg[int(grain/numGauss)][frame] += X/numGauss
+				y_avg[int(grain/numGauss)][frame] += Y/numGauss
 			if debug:
 				dx = X - x_line[grain][naturalNum(frame-1)]
 				dy = Y - y_line[grain][naturalNum(frame-1)]
@@ -145,11 +153,14 @@ if __name__=="__main__":
 					print(" Current frame is plotted at x=", x_line[grain][frame],
 					"y=",y_line[grain][frame],
 					"on the polar coordinate system, transformed to xy coordinates.")
+	if not graphicalAvg:
+		for grain in range(int(numGrains/numGauss)):
+			#if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
+			ax.plot(x_line[grain][preNumFrame:], y_line[grain][preNumFrame:], color='black', lw=0.5)
+	if graphicalAvg:
+		for combinedGrain in range(int(numGrains/numGauss)):
+			ax.plot(x_avg[combinedGrain], y_avg[combinedGrain], color = 'black')
 
-	for grain in range(numGrains):
-		#if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
-		if True:
-			ax.plot(x_line[grain][preNumFrame:], y_line[grain][preNumFrame:], color='black', lw=0.8)
 	if Taylor:
 		linex, liney = [""]*5, [""]*5
 		linex[0], liney[0] = getTaylorCurveDiv()[:,:]
@@ -164,4 +175,6 @@ if __name__=="__main__":
 		plt.show()
 		#plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
 	else: 	#plt.show()
-		plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+".OfAllGaussPoints.png")
+		#fig.set_size_inches([25.6,19.2])#Other options include: 
+		fig.set_size_inches([11.2,8.4])
+		plt.savefig("OrientationEvolutionPlot/All/GrainOrientationEvolution_ToFrame"+str(numFrame)+"graphicalAverage.png")
