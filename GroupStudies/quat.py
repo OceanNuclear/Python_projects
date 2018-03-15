@@ -3,6 +3,7 @@ import numpy as np
 import random as rn
 from numpy import sqrt, sin, cos, arccos, pi, arctan
 tau = 2*pi
+from numpy import array as ary
 
 
 
@@ -46,13 +47,13 @@ def spherical_cartesian(theta, phi):
 	return [x,y,z]
 
 def cartesian_spherical(x, y, z):
-	x,y,z = np.array([x,y,z], dtype=float) #change the data type to the desired format
+	x,y,z = ary([x,y,z], dtype=float) #change the data type to the desired format
 
 	Theta = arccos(z)
 	Phi = arctan(np.divide(y,x))
 	Phi = np.nan_to_num(Phi)
-	Phi+= np.array( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
-	return np.array([Theta, Phi])
+	Phi+= ary( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
+	return ary([Theta, Phi])
 
 def RootSumSq(array):
 	summation = 0
@@ -93,7 +94,7 @@ def dot (u,v):
 
 def inverse(q):
 	CheckIfQuaternion(q)
-	p = np.array([q[0], -q[1], -q[2], -q[3]])
+	p = ary([q[0], -q[1], -q[2], -q[3]])
 	p = p/(RootSumSq(q)**2)
 	return p
 
@@ -111,7 +112,7 @@ def dotQ(p,q):
 	CheckIfQuaternion(q)
 	return ( p[0]*q[0] + p[1]*q[1] + p[2]*q[2] + p[3]*q[3] )
 
-q0 = np.array([1,0,0,0])
+q0 = ary([1,0,0,0])
 
 def QuatToRotation(q):
 	CheckIfQuaternion(q)
@@ -167,7 +168,7 @@ def writeR(theta, THETA, PHI):
 def matrixMulti(A,B):
 	#optional: check that these two matrices are two dimentional and has the same dimension
 	#if np.shape(A)[1]!=np.shape(B)[0]: raise TypeError
-	#if (np.array(A).ndim!=2) or (np.array(B).ndim!=2): raise TypeError
+	#if (ary(A).ndim!=2) or (ary(B).ndim!=2): raise TypeError
 	vertical=np.shape(A)[0]
 	across = np.shape(B)[1]
 
@@ -180,48 +181,96 @@ def matrixMulti(A,B):
 	return C
 
 def averageQuatLinAlg(qList):
-	qList = np.array(qList)
+	qList = ary(qList)
 	if (np.shape(qList)[1]!=4): raise TypeError#Check that it contains quaternions in the shape of (Mx4).
 
 	Matrix = np.linalg.multi_dot([qList.T,qList])
 	EigenVal, EigenMat= np.linalg.eig(Matrix)
 	average = EigenMat[np.argmax(EigenVal)]
-
-	#CheckUnity(average)
-	#print("Check if ", RootSumSq(average),"is unity.")
 	return average
 
 def averageQuat(qList):
-	qList = np.array(qList)
+	qList = ary(qList)
 	if (np.shape(qList)[1]!=4): raise TypeError#Check that it contains quaternions in the shape of (Mx4).
 
 	Matrix = matrixMulti(qList.T,qList)
 	EigenVal, EigenMat= np.linalg.eig(Matrix)
 	average = EigenMat[np.argmax(EigenVal)]
+	return normalize(average)
 
-	#CheckUnity(average)
-	#print("Check if ", RootSumSq(average),"is unity.")
-	return average
+def medianQuat(qList):
+	qList = ary(qList)
+	if (np.shape(qList)[1]!=4): raise TypeError("It's not of the shape (Nx4)!")
+
+	disorder = np.zeros(len(qList))
+	for n in range(len(qList)):
+		for p in qList:
+			disorder[n] += misorientation2(p,qList[n])/(len(qList)-1)
+	minInd = np.argmin(disorder)
+	return qList[minInd], min(disorder), minInd, max(disorder)
+	#return the quaternion with the minimum disorientation and the mean number of radian difference from the rest of the quaternions
 
 def misorientationR(R1, R2):
 	p = RotToQuat(R1)
 	q = RotToQuat(R2)
-	return misorientationQ(p,q)
+	return misorientation(p,q)
 
 def misorientation(p,q):
-	product = multiply(inverse(p),q)
+	product = multiply(inverse(p), q)
 	return 1-abs(product[0]) #This will be a positive number >0 & <1.
+	#as it returns 1-cos(theta/2)), where theta is the angle required to turn from p to q.
+
+def misorientation2(p,q):#Linear scale of misorientation
+	differenceRotation = multipy(inverse(p), q)	#returns a quaternion
+	differenceRotation = np.clip(differenceRotation, -1,1)	
+	#^clips it back to the range of [-1,1] to correct for any floating point division and multiplication problems.
+	theta = arccos(differenceRotation[0])*2
+	return abs(theta) #return the misorientation in radian.
+	#return 1-cos(theta) #scale it nonlinearly instead.
+
+def generate111s():
+	s3 = sqrt(1/3)
+	x, y, z = [], [], []
+	for n in range (8):
+		x.append((-1)**(n>>2) *s3)
+		y.append((-1)**(n>>1) *s3)
+		z.append((-1)**(n>>0) *s3)
+	return ary([x,y,z]).T	#shape is (8,3)
+
+def misorientation3(p,q, method="radian"): #Misorientation between two quaternions, includes crystal symmetry, super computationally-intensive.
+	v8 = generate111s() # gives 8 vectors, each pointing to a corner.
+	vList1, vList2 = [], []
+	for v in v8:
+		vList1.append( np.linalg.multidot(QuatToR(q),v) ) #Rotate the pose according to p
+		vList2.append( np.linalg.multidot(QuatToR(p),v) ) #and q respectively.
+	misor = 0
+
+	if method=="cosine":
+	#For each vector in the first rotated pose,
+		for u_rotated in vList1:
+			#loop through the vectors of the second pose,
+			misList =  []
+			for v_rotated in vList2:
+				#And find the vector in the second pose that gives a dot product with the first closest to 1
+				misList.append( 1-dot(u_rotated,_rotated) )
+			misor += min(misList)/len(misList)
+
+	if method=="radian":
+		for u_rotated in vList1:
+			misList =  []
+
+			for v_rotated in vList2:
+				misList.append( arccos(np.clip(dot(u_rotated,v_rotated)),-1,1) )
+			misor += min(misList)/len(misList)
+	return misor
 
 def uglyAverage(qList):
-	qList = np.array(qList).T #Gives a 4xM matrix instead this time.
+	qList = ary(qList).T #Gives a 4xM matrix instead this time.
 	average = np.zeros(4)
 
 	for n in range (4):
 		average[n]=np.sum(qList[n])
 	average = average/RootSumSq(average)
-
-	#CheckUnity(average)
-	#print("Check if ", RootSumSq(average),"is unity.")
 	return average
 
 

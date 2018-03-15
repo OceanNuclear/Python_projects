@@ -68,7 +68,7 @@ def BG(CompletePoleFig=False):
 for name in ["MaxShearStresses_"]:
 	z = []
 	for frameNumstr in ["120","180","240","300","360"]:
-		z.append( Readrho("MaximumShearStressesOverTime_2/"+name+frameNumstr+"UnaxialNew.txt") )
+		z.append( Readrho("MaximumShearStressesOverTime_3/"+name+frameNumstr+"UnaxialNew.txt") )
 	z_max = np.max(z)
 	z_min = np.min(z)
 
@@ -101,6 +101,7 @@ for name in ["MaxShearStresses_"]:
 		#frameNumstr = "arbitraryData"
 		print("Reading and plotting data for frame", frameNumstr,"for",name)
 		RFinal, AngleFinal = [], []
+		R_ip,	Angle_ip   = [], []
 
 		'''
 		v = [[0., 0., 1.],
@@ -118,8 +119,8 @@ for name in ["MaxShearStresses_"]:
 		RotationMatrices = np.zeros(np.shape(v))
 		'''
 		RealData = True
-		RotationMatrices = ReadR("NewModel/"+frameNumstr+"FrameRotationMatrices.txt")
-		rho = Readrho("MaximumShearStressesOverTime_2/"+name+frameNumstr+"UnaxialNew.txt")[:-1]
+		RotationMatrices = ReadR("OldExtraction/"+frameNumstr+"FrameRotationMatrices.txt")
+		rho = Readrho("MaximumShearStressesOverTime_3/"+name+frameNumstr+"UnaxialNew.txt")
 
 		#Duplicate each point by 24 times:
 		rho = (np.array([rho,]*24).T).ravel()
@@ -127,7 +128,7 @@ for name in ["MaxShearStresses_"]:
 		for n in range (len(RotationMatrices)):
 			if RealData:	v48 = R_v(RotationMatrices[n])
 			else:		v48 = duplicate48Points(v[n][0], v[n][1], v[n][2])
-			pointList = choosePFpoint(v48)
+			pointList  =  choosePFpoint(v48)
 
 			for upVector in pointList:
 				[xl,yl,zl] = upVector
@@ -136,7 +137,16 @@ for name in ["MaxShearStresses_"]:
 				RInt, AngleInt = stereographicProjector(Theta,Phi)
 				RFinal.append(RInt)
 				AngleFinal.append(AngleInt)
-		Xco, Yco = polar2D_xy( AngleFinal, RFinal )
+
+			[x_i,y_i,z_i]=chooseIPpoint(v48)
+
+			Theta, Phi = cartesian_spherical(x_i,y_i,z_i)
+			RInt, AngleInt = stereographicProjector(Theta,Phi)
+			R_ip.append(RInt)
+			Angle_ip.append(AngleInt)
+
+		Xco, Yco = polar2D_xy(AngleFinal, RFinal)
+		Xip, Yip = polar2D_xy( Angle_ip , R_ip  )
 
 		points = np.array([Xco,Yco]).T
 
@@ -153,6 +163,10 @@ for name in ["MaxShearStresses_"]:
 		startTime = time.time()
 		graph = ax.pcolor(x,y,z, cmap=cm.jet, vmin = z_min, vmax = z_max)
 		print("Time taken just to plot the main heat map =", time.time()-startTime)
+
+
+		#Plot the actual orientations over it.
+		ax.plot(Xip, Yip, color='black', linestyle='None', marker = 'x')
 		#Put white polygons outside of the inverse pole figure area to hide the irrelevant bits.
 		xBound, yBound = InversePoleFigureLine()
 
@@ -167,5 +181,5 @@ for name in ["MaxShearStresses_"]:
 		plt.colorbar(graph, label = r"$m^{-2}$") #I think this is not part of ax, such that it is plotted outside of the figure.
 
 		#plt.show()
-		plt.savefig("HeatMappable/Frame"+frameNumstr+name+"WithAbsoluteAndNewExtraction.png")
+		plt.savefig("HeatMappable/MaxShearStress/NewestData/Frame"+frameNumstr+name+"_3WithOldRotationMatrices.png")
 		#plt.savefig("HeatMappable/Arbitrary Dislocation_OceansCode.png")

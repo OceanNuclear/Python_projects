@@ -85,7 +85,7 @@ if __name__=="__main__":
 
 	BG()
 
-	RotationMatrices = ReadR("NewModel/1FrameRotationMatrices.txt")
+	RotationMatrices = ReadR("OldExtraction/1FrameRotationMatrices.txt")
 	numGrains = len(RotationMatrices)
 	ID = np.ones(numGrains, dtype=int)*48#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
 
@@ -106,7 +106,7 @@ if __name__=="__main__":
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
 		'''
-	preNumFrame=49
+	preNumFrame=44
 	numFrame = 52
 	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 	x_line = np.zeros([numGrains,numFrame])
@@ -116,7 +116,7 @@ if __name__=="__main__":
 
 	thresholdDistance = 0.2
 	for frame in range (preNumFrame,numFrame):
-		fileName = "NewModel/"+str(frame+1)+"FrameRotationMatrices.txt"
+		fileName = "OldExtraction/"+str(frame+1)+"FrameRotationMatrices.txt"
 		UpdatedMatrices = ReadR(fileName)
 		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
 		for grain in range(numGrains):

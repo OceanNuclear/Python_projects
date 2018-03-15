@@ -6,6 +6,7 @@ from quat import *
 tau = 2*pi
 from scipy.interpolate.interpolate import interp1d
 #This file does not contain reading functions, as it simply does the job of mathematical processing.
+from numpy import array as ary
 
 
 
@@ -24,13 +25,13 @@ def spherical_cartesian(theta, phi):
 	return [x,y,z]
 
 def cartesian_spherical(x, y, z):
-	x,y,z = np.array([x,y,z], dtype=float) #change the data type to the desired format
+	x,y,z = ary([x,y,z], dtype=float) #change the data type to the desired format
 
 	Theta = arccos(z)
 	Phi = arctan(np.divide(y,x))
 	Phi = np.nan_to_num(Phi)
-	Phi+= np.array( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
-	return np.array([Theta, Phi])
+	Phi+= ary( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
+	return ary([Theta, Phi])
 
 
 
@@ -114,7 +115,7 @@ def getTaylorCurveDiv():
 	x = np.linspace(max(xdata), min(xdata),60)
 	f = interp1d(xdata, y)
 	y = f(x)
-	return np.array([x,y])
+	return ary([x,y])
 
 def getTaylorCurve2():
 	xdata = [0.2152941176, 0.1883823529, 0.158394958, 0.1276386555, 0.0930378151, 0.0561302521, 0.0007689076]
@@ -122,7 +123,7 @@ def getTaylorCurve2():
 	x = np.linspace(max(xdata), min(xdata),60)
 	f = interp1d(xdata, y, kind = 'cubic')
 	y = f(x)
-	return np.array([x,y])
+	return ary([x,y])
 
 def getTaylorCurve3():
 	xdata, ydata = [], []
@@ -141,7 +142,7 @@ def getTaylorCurve3():
 		Y.append(  yi )
 		f = interp1d(ydata[n], xdata[n], kind = 'cubic')
 		X.append(f(yi))
-	return np.array([X,Y])
+	return ary([X,Y])
 
 
 #Main functions
@@ -157,24 +158,24 @@ def deNormalize(v):
 	return v/(2*abs(v[2]))
 
 def R_v(R):
-	Z = np.array([0,0,1]) #assume pulling axis is the z axis.
+	Z = ary([0,0,1]) #assume pulling axis is the z axis.
 	[x,y,z] = np.linalg.multi_dot([R,Z]) #see where does the pulling axis lands.
 	#Pick the vector that juts out of the top face:
 	return duplicate48Points(x,y,z)
 
 def duplicate48Points(x0,y0,z0): #Find the equivalent points by permuating the indices and adding negative signs.
-	[x0,y0] = np.array([x0,y0])
+	[x0,y0] = ary([x0,y0])
 	x,y,z = [], [], []
 	
 	for n in range (8):
 		x.append((-1)**(n>>2) *x0); y.append((-1)**(n>>1) *y0); z.append((-1)**(n>>0) *z0)
-		x.append((-1)**(n>>2) *y0); y.append((-1)**(n>>1) *x0); z.append((-1)**(n>>0) *z0)
 		x.append((-1)**(n>>2) *x0); y.append((-1)**(n>>1) *z0); z.append((-1)**(n>>0) *y0)
+		x.append((-1)**(n>>2) *y0); y.append((-1)**(n>>1) *x0); z.append((-1)**(n>>0) *z0)
 		x.append((-1)**(n>>2) *y0); y.append((-1)**(n>>1) *z0); z.append((-1)**(n>>0) *x0)
 		x.append((-1)**(n>>2) *z0); y.append((-1)**(n>>1) *x0); z.append((-1)**(n>>0) *y0)
 		x.append((-1)**(n>>2) *z0); y.append((-1)**(n>>1) *y0); z.append((-1)**(n>>0) *x0)
 
-	return np.array([x,y,z]).T
+	return ary([x,y,z]).T
 
 def chooseIPpoint(arrayOf48pt):
 	for r in arrayOf48pt:
@@ -230,16 +231,16 @@ def ReadR(fileName):
 	Matrices = np.reshape(Matrices, [-1,3])
 	Matrix = []
 	for n in range (len(Matrices)):
-		Matrix.append(	[np.array(Matrices[n][0].split() , dtype=float),
-				np.array( Matrices[n][1].split() , dtype=float),
-				np.array( Matrices[n][2].split() , dtype=float) ] )
+		Matrix.append(	[ary(Matrices[n][0].split() , dtype=float),
+				ary( Matrices[n][1].split() , dtype=float),
+				ary( Matrices[n][2].split() , dtype=float) ] )
 	#np.shape(Matrix) ==(n,3,3)
 	return Matrix
 
 def Readrho(fileName):
 	f = open( str(fileName))
 	rho = f.readlines()
-	rho = np.array(rho, dtype = float)
+	rho = ary(rho, dtype = float)
 	return rho
 
 
@@ -252,4 +253,4 @@ def sphereFillingCurve( m,n , duration, fps=25):
 	theta= sin(r) *pi
 	phi = r*n*tau
 	r = r*tau
-	return np.array([r, theta, phi], dtype=float).T
+	return ary([r, theta, phi], dtype=float).T

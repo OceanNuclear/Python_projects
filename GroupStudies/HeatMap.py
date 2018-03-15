@@ -139,6 +139,7 @@ if __name__=="__main__":
 	x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]
 
 	z = griddata(points, rho, (x, y), method='cubic')
+
 	#takes in the (x_data, y_data), z(x_data,y_data), and interpolated data points.
 	#ax.scatter(points[:,0], points[:,1] , color = 'r', marker = 'o')
 
@@ -146,6 +147,7 @@ if __name__=="__main__":
 	print("starting to plot the heat map...")
 	startTime = time.time()
 	graph = ax.pcolor(x,y,z, cmap=cm.jet)#, vmin = 7.5e10, vmax = 1.18e11)
+	ax.scatter(Xco, Yco, color='black')
 	print("Time taken just to plot the main heat map =", time.time()-startTime)
 	#Put white polygons outside of the inverse pole figure area to hide the irrelevant bits.
 	xBound, yBound = InversePoleFigureLine()
@@ -160,6 +162,7 @@ if __name__=="__main__":
 	plt.title("Heat map of dislocation densities at frame "+frameNumstr)
 	plt.colorbar(graph, label = r"$m^{-2}$") #I think this is not part of ax, such that it is plotted outside of the figure.
 
-	#plt.show()
-	plt.savefig("HeatMappable/Frame"+frameNumstr+"DislocationDensity.png")
+	plt.show()
+	#plt.savefig("point1.png")
+	#plt.savefig("HeatMappable/Frame"+frameNumstr+"DislocationDensity.png")
 	#plt.savefig("HeatMappable/Arbitrary Dislocation_OceansCode.png")
