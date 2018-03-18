@@ -216,12 +216,12 @@ def misorientationR(R1, R2):
 	return misorientation(p,q)
 
 def misorientation(p,q):
-	product = multiply(inverse(p), q)
+	product = multiply( p, inverse(q))
 	return 1-abs(product[0]) #This will be a positive number >0 & <1.
 	#as it returns 1-cos(theta/2)), where theta is the angle required to turn from p to q.
 
 def misorientation2(p,q):#Linear scale of misorientation
-	differenceRotation = multipy(inverse(p), q)	#returns a quaternion
+	differenceRotation = multipy( p,inverse(q) )	#returns a quaternion
 	differenceRotation = np.clip(differenceRotation, -1,1)	
 	#^clips it back to the range of [-1,1] to correct for any floating point division and multiplication problems.
 	theta = arccos(differenceRotation[0])*2

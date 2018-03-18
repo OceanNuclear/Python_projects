@@ -64,15 +64,16 @@ def BG(CompletePoleFig=False):
 #Controller bit
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
 
-#for name in ["DislocationAnnFrame","DislocationGenerationFrame","MaxShearStresses_"]:
-for name in ["MaxShearStresses_"]:
+#for name in ["DislocationGenerationFrame","DislocationAnnFrame"]:
+#for name in ["MaxShearStresses_"]:
+for name in ["DislocationDensityFrame"]:
 	z = []
-	for frameNumstr in ["120","180","240","300","360"]:
-		z.append( Readrho("MaximumShearStressesOverTime_3/"+name+frameNumstr+"UnaxialNew.txt") )
+	for frameNumstr in ["15","30","45","120","180","240","300","360"]:
+		z.append( Readrho("NewModel/"+name+frameNumstr+"UnaxialNew.txt") )
 	z_max = np.max(z)
 	z_min = np.min(z)
 
-	for frameNumstr in ["120","180","240","300","360"]:
+	for frameNumstr in ["15","30","45","60","120","180","240","300","360"]:
 		global fig
 		fig = plt.figure()
 		fig.set_tight_layout(True)
@@ -120,7 +121,7 @@ for name in ["MaxShearStresses_"]:
 		'''
 		RealData = True
 		RotationMatrices = ReadR("OldExtraction/"+frameNumstr+"FrameRotationMatrices.txt")
-		rho = Readrho("MaximumShearStressesOverTime_3/"+name+frameNumstr+"UnaxialNew.txt")
+		rho = Readrho("NewModel/"+name+frameNumstr+"UnaxialNew.txt")
 
 		#Duplicate each point by 24 times:
 		rho = (np.array([rho,]*24).T).ravel()
@@ -154,7 +155,7 @@ for name in ["MaxShearStresses_"]:
 		yRes = int(xRes*yxratio)
 		x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]
 
-		z = griddata(points, rho, (x, y), method='nearest')
+		z = griddata(points, rho, (x, y), method='linear')
 		#takes in the (x_data, y_data), z(x_data,y_data), and interpolated data points.
 		#ax.scatter(points[:,0], points[:,1] , color = 'r', marker = 'o')
 
@@ -182,5 +183,5 @@ for name in ["MaxShearStresses_"]:
 		plt.colorbar(graph, label = r"$m^{-2}$") #I think this is not part of ax, such that it is plotted outside of the figure.
 
 		#plt.show()
-		plt.savefig("HeatMappable/MaxShearStress/Frame"+frameNumstr+name+"_nearestInterp.png")
+		plt.savefig("Graphs/HeatMappable/Frame"+frameNumstr+name+"_linearInterp.png")
 		#plt.savefig("HeatMappable/Arbitrary Dislocation_OceansCode.png")

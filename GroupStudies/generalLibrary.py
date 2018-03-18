@@ -27,7 +27,7 @@ def spherical_cartesian(theta, phi):
 def cartesian_spherical(x, y, z):
 	x,y,z = ary([x,y,z], dtype=float) #change the data type to the desired format
 
-	Theta = arccos(z)
+	Theta = arccos(np.clip(z,-1,1))
 	Phi = arctan(np.divide(y,x))
 	Phi = np.nan_to_num(Phi)
 	Phi+= ary( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
@@ -163,6 +163,11 @@ def R_v(R):
 	#Pick the vector that juts out of the top face:
 	return duplicate48Points(x,y,z)
 
+def Q_v(q):
+	Z = ary([1,0,0,1])
+	qauternion = multiply( multiply(q,Z) ,inverse(q) )
+	return quaternion[1:]
+
 def duplicate48Points(x0,y0,z0): #Find the equivalent points by permuating the indices and adding negative signs.
 	[x0,y0] = ary([x0,y0])
 	x,y,z = [], [], []
@@ -202,6 +207,7 @@ def choosePFpoint(arrayOf48pt):
 			pointList.append(r)
 		n += 1
 	return pointList
+
 def schmidFinder( vector,systemNum ):
 	vector = normalize(vector)
 	planeNorm = [1,1,1],[-1,-1,1],[-1,1,1],[1,-1,1]
@@ -220,6 +226,26 @@ def generateV(num=100): #Generate 20 unit vectors that points upwards.
 		phi = np.random.uniform( 0,tau )
 		vList.append(spherical_cartesian(theta,phi))
 	return vList
+
+def RList_xy(RList, IDList=False):
+	RadList, AngList = [], []
+	if IDList!=False:
+		for grain in len(RList):
+			r = R_v(UpdatedMatrices[grain])[IDList[grain]]
+			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2] )
+			Rad, Ang = stereographicProjector(Theta,Phi)
+			RadList = np.append(RadList, Rad)
+			AngList = np.append(AngList, Ang)
+	else:
+		for R in RList:
+			v48 = R_v(R)
+			r = chooseIPpoint(v48)
+			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2] )
+			Rad, Ang = stereographicProjector(Theta,Phi)
+			RadList = np.append(RadList, Rad)
+			AngList = np.append(AngList, Ang)
+	X, Y = polar2D_xy(AngList, RadList)
+	return [X,Y]
 
 
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
@@ -240,6 +266,7 @@ def ReadR(fileName):
 def Readrho(fileName):
 	f = open( str(fileName))
 	rho = f.readlines()
+	f.close()
 	rho = ary(rho, dtype = float)
 	return rho
 
