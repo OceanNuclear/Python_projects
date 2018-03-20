@@ -9,6 +9,7 @@ debug = True
 normal= not debug
 Taylor= False
 graphicalAvg = True
+WanderOutside= True
 
 
 
@@ -125,9 +126,10 @@ if __name__=="__main__":
 		UpdatedMatrices = ReadR(fileName)
 		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
 		for grain in range(numGrains):
-			r = R_v(UpdatedMatrices[grain])[ID[grain]]	#
-#			rList = R_v(UpdatedMatrices[grain])		
-#			r = chooseIPpoint(rList)			
+			r = R_v(UpdatedMatrices[grain])[ID[grain]]
+			if not WanderOutside:
+				rList = R_v(UpdatedMatrices[grain])		
+				r = chooseIPpoint(rList)			
 
 			[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
 			R, Angle = stereographicProjector(Theta,Phi)

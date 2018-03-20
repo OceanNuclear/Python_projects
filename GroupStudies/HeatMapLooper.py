@@ -65,15 +65,15 @@ def BG(CompletePoleFig=False):
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
 
 #for name in ["DislocationGenerationFrame","DislocationAnnFrame"]:
-#for name in ["MaxShearStresses_"]:
-for name in ["DislocationDensityFrame"]:
+for name in ["MaxShearStresses_"]:
+#for name in ["DislocationDensityFrame"]:
 	z = []
-	for frameNumstr in ["15","30","45","120","180","240","300","360"]:
-		z.append( Readrho("NewModel/"+name+frameNumstr+"UnaxialNew.txt") )
+	for frameNumstr in ["1","2","3","4","8","12","20","30","120","180","240","300","360"]:	#Find the maximum and minimum
+		z.append( Readrho("MaximumShearStressesOverTime_4/"+name+frameNumstr+"UnaxialNew.txt") )
 	z_max = np.max(z)
 	z_min = np.min(z)
 
-	for frameNumstr in ["15","30","45","60","120","180","240","300","360"]:
+	for frameNumstr in ["120","180","240","300","360"]:
 		global fig
 		fig = plt.figure()
 		fig.set_tight_layout(True)
@@ -121,7 +121,7 @@ for name in ["DislocationDensityFrame"]:
 		'''
 		RealData = True
 		RotationMatrices = ReadR("OldExtraction/"+frameNumstr+"FrameRotationMatrices.txt")
-		rho = Readrho("NewModel/"+name+frameNumstr+"UnaxialNew.txt")
+		rho = Readrho("MaximumShearStressesOverTime_4/"+name+frameNumstr+"UnaxialNew.txt")
 
 		#Duplicate each point by 24 times:
 		rho = (np.array([rho,]*24).T).ravel()
@@ -180,8 +180,8 @@ for name in ["DislocationDensityFrame"]:
 
 		#Plotting the non-pole Figure elements
 		plt.title("Heat map of"+name+" at frame "+frameNumstr)
-		plt.colorbar(graph, label = r"$m^{-2}$") #I think this is not part of ax, such that it is plotted outside of the figure.
+		plt.colorbar(graph, label ="Pa") #I think this is not part of ax, such that it is plotted outside of the figure.
 
 		#plt.show()
-		plt.savefig("Graphs/HeatMappable/Frame"+frameNumstr+name+"_linearInterp.png")
+		plt.savefig("Graphs/HeatMappable/MaxShearStress/Frame"+frameNumstr+name+"_linearInterp.png")
 		#plt.savefig("HeatMappable/Arbitrary Dislocation_OceansCode.png")

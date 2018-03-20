@@ -7,38 +7,16 @@ from numpy import array as ary
 
 
 
-#The function below is written by Will, not me.
-def RotToQuat(R):  #R is the rotation matrix
-	if( ((R[0][0] + R[1][1] + R[2][2]-1))<1E-10 ):
-		s = sqrt(1 + R[0][0] + R[1][1] + R[2][2])*2	#s=4*w
-		w = 0.25 * s
-		x = ( R[2][1] - R[1][2] ) /s
-		y = ( R[0][2] - R[2][0] ) /s
-		z = ( R[1][0] - R[0][1] ) /s
- 
-	elif((R[0][0] > R[1][1])and(R[0][0] > R[2][2])): # rotational axis lies on 
-		s = sqrt( 1.0 + R[0][0] - R[1][1] - R[2][2] )*2	#s=4*x
-		w = (R[2][1] - R[1][2]) /s
-		x = 0.25 * s
-		y = (R[0][1] + R[1][0]) /s
-		z = (R[0][2] + R[2][0]) /s
-	  
-	elif(R[1][1] > R[2][2]):
-		s = sqrt( 1.0 + R[1][1] - R[0][0] - R[2][2] )*2	#s=4*y
-		w = (R[0][2] - R[2][0]) /s
-		x = (R[0][1] + R[1][0]) /s
-		y = 0.25 * s
-		z = (R[1][2] + R[2][1]) /s
- 
-	else:
-		s = sqrt( 1.0 + R[2][2] - R[0][0] - R[1][1] )*2	#s=4*z
-		w = (R[1][0] - R[0][1]) /s
-		x = (R[0][2] + R[2][0]) /s
-		y = (R[1][2] + R[2][1]) /s
-		z = 0.25 * s
-	Q = [w,x,y,z]	#identity matrix equates to [1,0,0,0]
-	return Q
-#End of function written by Will Mead.
+def RotToQuat(R):
+	I = np.identity(3)
+	A = (I-R)/2
+	Tr = np.clip(np.trace(A),0,2)	#Clip to prevent stupid floating point problems caused by Abaqus to lead to overflow.
+	A0,A1,A2 = np.clip(np.diag(A),0,1)	#Get the diagonal
+	x = (Tr-2*A0)/2
+	y = (Tr-2*A1)/2
+	z = (Tr-2*A2)/2
+	w = 1-Tr/2
+	return sqrt([w,x,y,z])
 
 def spherical_cartesian(theta, phi):
 	x = sin(theta)*cos(phi)
@@ -47,25 +25,23 @@ def spherical_cartesian(theta, phi):
 	return [x,y,z]
 
 def cartesian_spherical(x, y, z):
-	x,y,z = ary([x,y,z], dtype=float) #change the data type to the desired format
+	x,y,z = ary(np.clip([x,y,z],-1,1), dtype=float) #change the data type to the desired format
 
-	Theta = arccos(z)
+	Theta = arccos((z))
 	Phi = arctan(np.divide(y,x))
 	Phi = np.nan_to_num(Phi)
 	Phi+= ary( (np.sign(x)-1), dtype=bool)*pi #if x is positive, then phi is on the RHS of the circle; vice versa.
 	return ary([Theta, Phi])
 
 def RootSumSq(array):
-	summation = 0
-	for x in np.ravel(array):
-		summation += x**2
-	return sqrt(summation)
+	summation = [x**2 for x in np.ravel(array)]
+	return sqrt(sum(summation))
 
 def normalize(v):
 	return v/RootSumSq(v)
 
 def CheckUnity(array, varName="quarternion"):
-	if abs(RootSumSq(array)-1)>1E-3:
+	if abs(RootSumSq(array)-1)>2e-05:
 		raise ValueError("This",varName,"component's root sum squares is not unity!")
 	return
 
@@ -88,19 +64,15 @@ def cross (u, v):
 	return [x,y,z]
 
 def dot (u,v):
-	CheckIfVector(u)
-	CheckIfVector(v)
-	return (u[0]*v[0] + u[1]*v[1] + u[2]*v[2])
+	summation = [u[n]*v[n] for n in range (len(u))]
+	return sum(summation)
 
 def inverse(q):
-	CheckIfQuaternion(q)
-	p = ary([q[0], -q[1], -q[2], -q[3]])
-	p = p/(RootSumSq(q)**2)
-	return p
+	qinv = ary([q[0], -q[1], -q[2], -q[3]])
+	qinv = qinv/(RootSumSq(q)**2)
+	return qinv
 
 def multiply(p, q):
-	CheckIfQuaternion(p)
-	CheckIfQuaternion(q)
 	a = p[0]*q[0] - p[1]*q[1] - p[2]*q[2] - p[3]*q[3] #product of w minus dot product of axes.
 	x = p[2]*q[3] - p[3]*q[2] + p[0]*q[1] + q[0]*p[1] #cross product of axes plus cross-multiply coefficient to the axes.
 	y = p[3]*q[1] - p[1]*q[3] + p[0]*q[2] + q[0]*p[2]
@@ -130,10 +102,15 @@ def QuatToRotation(q):
 	print("\t", "axis=", axis)
 	return [theta, axis]
 
+def Q_ThreeVar(q):
+	theta = 2*arccos(np.clip(q[0],-1,1))
+	s2 = sin(theta/2)
+	x, y, z = ary(q)[1:]/s2
+	THETA, PHI = cartesian_spherical(x,y,z)
+	return [theta,THETA,PHI]
+
 def QuatToR(q):
-	CheckIfQuaternion(q)
-	CheckUnity(q, "Quaternion")
-	theta = 2 * arccos(q[0])
+	theta = 2 * arccos(np.clip(q[0],0,pi))
 
 	R = np.identity(3)
 	if theta>2E-5:
@@ -151,6 +128,13 @@ def QuatToR(q):
 		R[2][1] -= 2*(-q[0]*q[1]-q[2]*q[3])
 
 	return R
+
+def ThreeVar_Q(ThreeVar):
+	[theta, THETA, PHI] = ThreeVar	#unpack the variables
+	x,y,z = spherical_cartesian(THETA, PHI)	#convert to cartesian
+	s2 = sin(theta/2)	#get multiplication factor
+	q = [cos(theta/2), s2*x, s2*y, s2*z]	#create quaternion
+	return q
 
 def writeR(theta, THETA, PHI):
 	#(THETA,PHI) gives the axis along which to rotate the sphere in; 
@@ -217,15 +201,15 @@ def misorientationR(R1, R2):
 
 def misorientation(p,q):
 	product = multiply( p, inverse(q))
-	return 1-abs(product[0]) #This will be a positive number >0 & <1.
+	return 1-abs(product[0]) #This will be 0<number<1
 	#as it returns 1-cos(theta/2)), where theta is the angle required to turn from p to q.
 
 def misorientation2(p,q):#Linear scale of misorientation
-	differenceRotation = multipy( p,inverse(q) )	#returns a quaternion
-	differenceRotation = np.clip(differenceRotation, -1,1)	
+	differenceRotation = multiply( p,inverse(q) )	#returns a quaternion
+	differenceRotation = np.clip(differenceRotation, -1,1)
 	#^clips it back to the range of [-1,1] to correct for any floating point division and multiplication problems.
 	theta = arccos(differenceRotation[0])*2
-	return abs(theta) #return the misorientation in radian.
+	return theta #return the misorientation in radian.
 	#return 1-cos(theta) #scale it nonlinearly instead.
 
 def generate111s():
@@ -237,7 +221,41 @@ def generate111s():
 		z.append((-1)**(n>>0) *s3)
 	return ary([x,y,z]).T	#shape is (8,3)
 
-def misorientation3(p,q, method="radian"): #Misorientation between two quaternions, includes crystal symmetry, super computationally-intensive.
+def misorientationSymm(p,q):	#Create the quaternaion representation of the 
+	misor = []
+	s2,s3 = sqrt(1/2), sqrt(1/3)
+	I = np.identity(3)
+	#Lgroup: rotate around the centre of faces.
+	LGroup = np.identity(4)
+	pos = np.pad(I*s2, ((0,0),(1,0)),'constant', constant_values=s2)
+	neg = np.pad(-I*s2,((0,0),(1,0)),'constant', constant_values=s2)
+	LGroup = np.concatenate((LGroup, pos, neg))
+	order = [0,1,4,7,2,5,8,3,6,9]	#0 is identity, the other 3*3 comes from rotation around the centre of face.
+	LGroup = LGroup[order]
+
+	#MGroup: rotate around the edges.
+	revIs2 = s2-s2*I
+	asymm  = s2-s2*I
+	asymm[:,1] = -asymm[:,1]
+	asymm[1,0] = -s2
+	MGroup = np.pad(np.concatenate((revIs2,asymm)), ((0,0),(1,0)), 'constant', constant_values=0)	#Gives 3*2 symmetries.
+
+	#NGroup: rotate around opposite vertices.
+	NGroup = ary([[1,1,1],[1,-1,1],[-1,1,1],[-1,-1,1]])/2
+	#normalize by multiplying 1/sqrt(3), then *sin(theta/2)=sqrt(3/4) since theta=n*tau/3
+	NGroup = np.concatenate((NGroup, -NGroup))	#Gives (2**2)*2 symmetries.
+	NGroup = np.pad(NGroup, ((0,0),(1,0)), 'constant', constant_values=0.5)
+
+	#Compile together the list of 24 symmetries, including the identity.
+	SymmList = np.concatenate((LGroup,NGroup,MGroup))
+
+	for RotationalQuat in SymmList:	#indeed there are 24 symmetries.
+		pRotated= multiply(p,RotationQuat) #post multiply the symmetry to p
+		misor.append( misorientation2(pRotated,q) ) #Find the misorientation
+	minInd = np.argmin(misor)
+	return misor[minInd], minInd	#return the minimum no, of degrees required to turn it to the nearest location.
+
+def misorientation4(p,q, method="radian"): #Misorientation between two quaternions, includes crystal symmetry, super computationally-intensive.
 	v8 = generate111s() # gives 8 vectors, each pointing to a corner.
 	vList1, vList2 = [], []
 	for v in v8:
@@ -299,6 +317,6 @@ if __name__=="__main__":
 		print("Eigen Method average thus far yields      ", correctAverage,"length = ", RootSumSq(correctAverage))
 		#print("Primitive averaging method thus far yields", incorrectAverage,RootSumSq(incorrectAverage))
 		#print("Difference between their absolute values= ", np.abs(correctAverage)-np.abs(incorrectAverage))
-		print("\tThe mis-orientation between this q and the average is", multiply(inverse(q), correctAverage))
+		print("\tThe mis-orientation between this q and the average is", multiply((q), correctAverage))
 		print("\twhich should be the same as                          ", multiply(correctAverage, q))
 		print("Currently there are", len(qlist), "quaternions.\n")
