@@ -6,9 +6,7 @@ import numpy as np
 
 
 def RootSumSq(array):
-	SUM = 0
-	for elem in np.ravel(array):
-		SUM += elem**2
+	SUM = [x**2 for x in np.ravel(array)]
 	return np.sqrt(SUM)
 
 def InverseSum(array):
