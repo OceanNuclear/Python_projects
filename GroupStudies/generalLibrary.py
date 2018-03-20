@@ -217,7 +217,7 @@ def schmidFinder( vector,systemNum ):
 		[0,1,1],[1,1,0],[-1,0,1])
 	cos_phi = np.dot( vector, normalize(planeNorm[int(np.floor(systemNum/3))]) )
 	cos_theta=np.dot( vector, normalize(direction[systemNum])		)
-	return cos_phi*cos_theta
+	return abs(cos_phi*cos_theta)
 
 def generateV(num=100): #Generate 20 unit vectors that points upwards.
 	vList=[]

@@ -75,23 +75,23 @@ if __name__=="__main__":
 
 	y_max = getIPtip()[1]
 
-	xlimits = expandAxisLimit(0, tan(pi/8) ,0.01)
-	ylimits = expandAxisLimit(0, y_max ,0.01) #y_max is calculated above in the wasted bit of script (currently line 93)
+#	xlimits = expandAxisLimit(0, tan(pi/8) ,0.01)
+#	ylimits = expandAxisLimit(0, y_max ,0.01) #y_max is calculated above in the wasted bit of script (currently line 93)
 
-	ax.set_xlim(xlimits)
-	ax.set_ylim(ylimits)
+#	ax.set_xlim(xlimits)
+#	ax.set_ylim(ylimits)
 
-#	ax.set_xlim([-1,1])	
-#	ax.set_ylim([-1,1])	
+	ax.set_xlim([-1,1])	#
+	ax.set_ylim([-1,1])	#
 
 	ax.set_xticks([])
 	ax.set_yticks([])
 
-	yxratio = y_max/tan(pi/8)#
-#	yxratio = 1		
+#	yxratio = y_max/tan(pi/8)
+	yxratio = 1		#
 	ax.set_aspect(yxratio)
 
-	BG(CompletePoleFig=False)
+	BG(CompletePoleFig=True)
 
 	RFinal, AngleFinal = [], []
 
@@ -122,11 +122,11 @@ if __name__=="__main__":
 
 	points = np.array([Xco,Yco]).T
 	print("Schmid factor calculation (excluding interpolation) took", time.time()-startTime)
-	xRes = 300
+	xRes = 500
 	yRes = int(xRes*yxratio)
 
-	x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]#
-#	x, y = np.mgrid[-1:1:(xRes*1j), -1:1:(yRes*1j)]		
+#	x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]
+	x, y = np.mgrid[-1:1:(xRes*1j), -1:1:(yRes*1j)]		#
 	z = griddata(points, rho, (x, y), method='cubic')
 
 	#Plot the colormap itself.
@@ -141,11 +141,11 @@ if __name__=="__main__":
 	yBound = np.append( yBound[1:], 0 )
 	yUpper = yBound-yBound+ getIPtip()[0] +0.01#the 0.01 bodges for the slight edge that appears on top 
 
-	ax.fill_between(xBound, yBound, yUpper, color = 'w')	#
+#	ax.fill_between(xBound, yBound, yUpper, color = 'w')	
 
 	#Plotting the non-pole Figure elements
 	plt.title("Schmid Factor of cubic crystals")
 	plt.colorbar(graph)
 
 	#plt.show()
-	plt.savefig("SchmidFactorInversePoleFigure_highRes.png")
+	plt.savefig("SchmidFactorInversePoleFigure_Complete.png")

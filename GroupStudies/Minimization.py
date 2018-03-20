@@ -1,6 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
 '''THIS IS A VERY COMPUTATIONALLY INTENSIVE SCRIPT! You have been warned.'''
-#Takes up to 1 minutes per 3 frames when ran for the first time.
+#Takes up to 1 minute per 3 frames when ran for the first time.
 from numpy import sin, cos, tan, arccos, arctan, sqrt, pi
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +12,7 @@ normal= not debug
 Taylor= False
 graphicalAvg = False
 everyPoint = False
-WanderOutside=True
+WanderOutside=False
 from scipy.optimize import minimize
 import time, os
 
@@ -109,7 +109,7 @@ if __name__=="__main__":
 
 	preNumFrame=0
 	numFrame = 397
-	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
+	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames with symmetry averaging")
 
 	qOfPoints=np.zeros([numGrains,4])
 	x_line = np.zeros([numGrains,numFrame])
@@ -128,18 +128,21 @@ if __name__=="__main__":
 			qList.append(RotToQuat(R))
 		guessQuat = uglyAverage(qList)
 		ThreeVar0 = Q_ThreeVar(guessQuat)
+
+		print("Finding the ID of grain", combinedGrain)
+
 		def misorientationSum(ThreeVar): #Define program to find the degrees of misorientation for a given input
 			totalMisor = 0
 			avg_q = ThreeVar_Q(ThreeVar)	#ThreeVar==[theta,THETA,PHI]
 			for gau in range (numGauss):	#add up the 8 points's minimum misorientation
-				totalMisor += misorientation2(avg_q,qList[gau])
-				#totalMisor+= misorientationSymm(avg_q,qList[gau])
+				totalMisor += misorientationSymm(avg_q,qList[gau])[0]
+				#totalMisor += misorientation2(avg_q,qList[gau])
 			return totalMisor
 
 		bnds = [0,pi],[0,pi],[0,tau]	#set boundary for 
 		ThreeVar_avg = minimize(misorientationSum, x0=ThreeVar0, bounds=(bnds)).x
 		#dummy input of x=0, to get y = 0
-		
+
 		avg_q = np.nan_to_num(ThreeVar_Q(ThreeVar_avg))		#Get it in quaternion form
 		R = QuatToR(avg_q)					#turn it into R (matrix) form
 		v48 = R_v(R)
@@ -161,12 +164,12 @@ if __name__=="__main__":
 
 	for frame in range (preNumFrame,numFrame):	#Iterate over frame
 		fileName = "LiterallyEveryPoint/"+str(frame+1)+"FrameRotationMatrices.txt"
-		fileNameOut= "MinimizedMatrices/"+str(frame+1)+"FrameRotationMatrices.txt"
-		fileNameNext="MinimizedMatrices/"+str(frame+2)+"FrameRotationMatrices.txt"
+		fileNameOut= "MinimizedMatricesSymm/"+str(frame+1)+"FrameRotationMatrices.txt"
+		fileNameNext="MinimizedMatricesSymm/"+str(frame+2)+"FrameRotationMatrices.txt"
 
 		UpdatedMatrices = ReadR(fileName)	#Read the list of matrices for that frame
 
-		if (not os.path.exists(fileNameNext) )or(not os.path.exists(fileNameOut)):
+		if (not os.path.exists(fileNameNext) ) or (not os.path.exists(fileNameOut)):	#If either does not exist.
 			for grain in range(numGrains):
 				qOfPoints[grain] = RotToQuat(UpdatedMatrices[grain])	#Find the pose in terms of quaternion.
 
@@ -182,8 +185,8 @@ if __name__=="__main__":
 					totalMisor = 0
 					avg_q = ThreeVar_Q(ThreeVar)	#ThreeVar==[theta,THETA,PHI]
 					for gau in range (numGauss):	#add up the 8 points's minimum misorientation
-						totalMisor += misorientation2(avg_q,qList[gau])
-						#totalMisor+= misorientationSymm(avg_q,qList[gau])
+						#totalMisor += misorientation2(avg_q,qList[gau])
+						totalMisor += misorientationSymm(avg_q,qList[gau])[0]
 					return totalMisor
 
 				bnds = [0,pi],[0,pi],[0,tau]
@@ -261,5 +264,5 @@ if __name__=="__main__":
 		#plt.show()
 		fig.set_size_inches([25.6,19.2])
 		#fig.set_size_inches([11.2,8.4])
-		if not WanderOutside:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage(Restricted).png")
-		else:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage.png")
+		if not WanderOutside:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverageWithSymmetry(Restricted).png")
+		else:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverageWithSymmetry.png")

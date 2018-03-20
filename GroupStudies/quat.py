@@ -250,7 +250,7 @@ def misorientationSymm(p,q):	#Create the quaternaion representation of the
 	SymmList = np.concatenate((LGroup,NGroup,MGroup))
 
 	for RotationalQuat in SymmList:	#indeed there are 24 symmetries.
-		pRotated= multiply(p,RotationQuat) #post multiply the symmetry to p
+		pRotated= multiply(p,RotationalQuat) #post multiply the symmetry to p
 		misor.append( misorientation2(pRotated,q) ) #Find the misorientation
 	minInd = np.argmin(misor)
 	return misor[minInd], minInd	#return the minimum no, of degrees required to turn it to the nearest location.

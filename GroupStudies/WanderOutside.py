@@ -8,7 +8,7 @@ from generalLibrary import *
 debug = True
 normal= not debug
 Taylor= False
-graphicalAvg = True
+graphicalAvg = False
 WanderOutside= True
 
 
@@ -87,7 +87,7 @@ if __name__=="__main__":
 
 	BG()
 
-	RotationMatrices = ReadR("LiterallyEveryPoint/1FrameRotationMatrices.txt")
+	RotationMatrices = ReadR("Hydrostatic/1FrameRotationMatrices.txt")
 	numGrains = len(RotationMatrices)
 	numGauss = 8
 	ID = np.ones(numGrains, dtype=int)*48#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
@@ -102,7 +102,7 @@ if __name__=="__main__":
 
 		X, Y = polar2D_xy(Angle, R)
 
-		#ax.plot(X, Y , marker = 'o', markerfacecolor='none', markeredgecolor='black')
+		ax.plot(X, Y , marker = 'o', markerfacecolor='none', markeredgecolor='black')
 		'''
 		ax.annotate("",xy=(X2, Y2), xycoords='data',
 			xytext=( X, Y ), textcoords='data',
@@ -110,19 +110,19 @@ if __name__=="__main__":
 			)
 		'''
 	preNumFrame=0
-	numFrame = 397
-	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
+	numFrame = 100
+	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 100 frames in hydrostatic stress model")
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
 
-	x_avg = np.zeros([int(numGrains/numGauss),numFrame])
-	y_avg = np.zeros([int(numGrains/numGauss),numFrame])
+	x_avg = np.zeros([numGrains,numFrame])
+	y_avg = np.zeros([numGrains,numFrame])
 
 	distance=np.zeros([numGrains,numFrame])
 
 	thresholdDistance = 0.2
 	for frame in range (preNumFrame,numFrame):
-		fileName = "LiterallyEveryPoint/"+str(frame+1)+"FrameRotationMatrices.txt"
+		fileName = "Hydrostatic/"+str(frame+1)+"FrameRotationMatrices.txt"
 		UpdatedMatrices = ReadR(fileName)
 		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
 		for grain in range(numGrains):
@@ -156,7 +156,7 @@ if __name__=="__main__":
 					"y=",y_line[grain][frame],
 					"on the polar coordinate system, transformed to xy coordinates.")
 	if not graphicalAvg:
-		for grain in range(int(numGrains/numGauss)):
+		for grain in range(numGrains):
 			#if (grain!=52) and (grain!=114):#ignoring grains with discontinuity
 			ax.plot(x_line[grain][preNumFrame:], y_line[grain][preNumFrame:], color='black', lw=0.5)
 	if graphicalAvg:
@@ -172,11 +172,11 @@ if __name__=="__main__":
 		for n in range (5):
 			ax.plot(linex[n][:-1], liney[n][:-1], 'r', alpha = 0.5)
 			ax.annotate("",xy=[linex[n][-2],liney[n][-2]], xytext =[linex[n][-1],liney[n][-1]], arrowprops=dict(color = 'r', arrowstyle= '<-'), alpha = 0.5)
-		ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames \n compared with Taylor Model prediction (in red)")
+		ax.set_title("Evolution of grains orientations in Hydrostatic Model up to frame"+str(numFrame)+"\nout of 100 frames compared with Taylor Model prediction (in red)")
 		ax.set_aspect(0.366/tan(pi/8))
-		plt.show()
-		#plt.savefig("OrientationEvolutionPlot/GrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
+		#plt.show()
+		plt.savefig("Graphs/OrientationEvolutionPlot/Hydrostatic/HydrostaticGrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
 	else: 	#plt.show()
 		#fig.set_size_inches([25.6,19.2])#Other options include: 
 		fig.set_size_inches([11.2,8.4])
-		plt.savefig("OrientationEvolutionPlot/All/GrainOrientationEvolution_ToFrame"+str(numFrame)+"graphicalAverage.png")
+		plt.savefig("Graphs/OrientationEvolutionPlot/Hydrostatic/HydrostaticGrainOrientationEvolution_ToFrame"+str(numFrame)+".png")
