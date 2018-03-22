@@ -12,11 +12,21 @@ def RotToQuat(R):
 	A = (I-R)/2
 	Tr = np.clip(np.trace(A),0,2)	#Clip to prevent stupid floating point problems caused by Abaqus to lead to overflow.
 	A0,A1,A2 = np.clip(np.diag(A),0,1)	#Get the diagonal
-	x = (Tr-2*A0)/2
-	y = (Tr-2*A1)/2
-	z = (Tr-2*A2)/2
-	w = 1-Tr/2
-	return sqrt([w,x,y,z])
+
+	x2 = (Tr-2*A0)/2	#These are all squares
+	y2 = (Tr-2*A1)/2
+	z2 = (Tr-2*A2)/2
+	w2 = 1-Tr/2
+	q = sqrt([w2,x2,y2,z2])
+
+	aSymm = (A.T-A)/2	#Find w*x, w*y, w*z, for the sole purpose of finding the correct sign to return the quaternion in.
+	wx = aSymm[1][2]
+	wy = aSymm[2][0]
+	wz = aSymm[0][1]
+
+	sign = np.sign([1,wx,wy,wz])	#The sign of w is always +ve.
+	sign[1:] = [1 if x>=0 else -1 for x in sign[1:]]	#list comprehension to catch cases where w=0 for the unit vector
+	return sign*q
 
 def spherical_cartesian(theta, phi):
 	x = sin(theta)*cos(phi)
@@ -55,6 +65,10 @@ def CheckIfQuaternion(q):
 		raise TypeError("This is not a quaternion!")
 	return
 
+def Check(condition, message="Generic error message"):
+	if not condition:
+		raise TypeError(message)
+	return
 def cross (u, v):
 	CheckIfVector(u)
 	CheckIfVector(v)

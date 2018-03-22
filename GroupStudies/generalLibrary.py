@@ -159,6 +159,7 @@ def deNormalize(v):
 
 def R_v(R):
 	Z = ary([0,0,1]) #assume pulling axis is the z axis.
+	#R = np.linalg.pinv(R)
 	[x,y,z] = np.linalg.multi_dot([R,Z]) #see where does the pulling axis lands.
 	#Pick the vector that juts out of the top face:
 	return duplicate48Points(x,y,z)
@@ -211,10 +212,10 @@ def choosePFpoint(arrayOf48pt):
 def schmidFinder( vector,systemNum ):
 	vector = normalize(vector)
 	planeNorm = [1,1,1],[-1,-1,1],[-1,1,1],[1,-1,1]
-	direction = ([-1,0,1],[-1,1,0],[0,-1,1],
+	direction = [[-1,0,1],[-1,1,0],[0,-1,1],
 		[0,1,1],[-1,1,0],[1,0,1],
 		[1,0,1],[1,1,0],[0,-1,1],
-		[0,1,1],[1,1,0],[-1,0,1])
+		[0,1,1],[1,1,0],[-1,0,1]]
 	cos_phi = np.dot( vector, normalize(planeNorm[int(np.floor(systemNum/3))]) )
 	cos_theta=np.dot( vector, normalize(direction[systemNum])		)
 	return abs(cos_phi*cos_theta)
