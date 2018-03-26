@@ -1,4 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
+#Picks five frames out of the original, and then plot them on the pole figure/Inverse Pole Figure.
+#This approach has been rendered obsolete as I can simply plot every frame's pole figure by using the script WanderOutside.py.
 from numpy import sin, cos, tan, arccos, arctan, sqrt, pi
 import numpy as np
 import matplotlib.pyplot as plt
@@ -61,7 +63,7 @@ def BG(CompletePoleFig=False):
 if __name__=="__main__":
 	global fig
 	fig = plt.figure()
-	fig.set_tight_layout(True)
+	fig.set_tight_layout(True)	#remove the black outline.
 
 	global ax
 	ax = plt.subplot(111)

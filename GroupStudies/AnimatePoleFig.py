@@ -1,4 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
+#Animate the pole figure to demonstrate how a rotation is reflected on a pole figure when we vary the rotation parameters.
+#No longer used once I've updated my laptop and the ffmpeg module got broken since then.
 import numpy as np
 from scipy.constants import pi
 import math

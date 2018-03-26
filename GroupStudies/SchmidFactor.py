@@ -1,4 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python
+#Plots the schmid factor pole figure or inverse pole figure.
 import numpy as np
 from scipy.constants import pi
 import math
@@ -115,7 +116,7 @@ if __name__=="__main__":
 		AngleFinal.append(AngleInt)
 
 		schmidFactor = []
-		for slipSystem in range (12):
+		for slipSystem in range (12):	#Loop through all 12 systems, and then plot the largest value among them.
 			schmidFactor.append(schmidFinder(vList[n], slipSystem))
 		rho.append(max(schmidFactor))
 	Xco, Yco = polar2D_xy( AngleFinal, RFinal )
@@ -144,8 +145,8 @@ if __name__=="__main__":
 #	ax.fill_between(xBound, yBound, yUpper, color = 'w')	
 
 	#Plotting the non-pole Figure elements
-	plt.title("Schmid Factor of cubic crystals")
+	plt.title("Schmid Factor of one slip system in cubic crystals")
 	plt.colorbar(graph)
 
 	#plt.show()
-	plt.savefig("SchmidFactorInversePoleFigure_Complete.png")
+	plt.savefig("SchmidFactorInversePoleFigure_OneSystemComplete.png")

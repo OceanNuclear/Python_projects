@@ -1,4 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
+#A mix between the record of the actual error message printed by the Debugger.py
+#and code used to plot the errors to investigate where is the mistake from.
 import numpy as np
 from Will import *
 from quat import *

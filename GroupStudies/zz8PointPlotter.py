@@ -1,4 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
+#For plotting a single point on the pole figure for animation purpose.
+#Unused, therefore prepended with zz infront of the file name so that it'll always stay at the bottom of the directory.
 import numpy as np
 from scipy.constants import pi
 import math

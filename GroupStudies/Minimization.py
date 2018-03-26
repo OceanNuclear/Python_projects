@@ -1,5 +1,9 @@
 #!/home/oceanw/anaconda3/bin/python
-'''THIS IS A VERY COMPUTATIONALLY INTENSIVE SCRIPT! You have been warned.'''
+#By the scipy.optimize.minimizate function, calculates the orientation that gives the minimum misorientation with the 8 gauss points, within each grain. (read from the file "LiterallyEveryPoint/")
+#and then plot their location on the IPF/Pole figure.
+#If some of them has been calculated, they will be saved to the directary of "MinimizedMatrices" (or "MinimizedMatricesSymm")
+#to reduce the amount of computational time needed when running the program again after stopping it mid-way.
+'''THIS IS A VERY COMPUTATIONALLY INTENSIVE SCRIPT! You have been warned...'''
 #Takes up to 1 minute per 3 frames when ran for the first time.
 from numpy import sin, cos, tan, arccos, arctan, sqrt, pi
 import numpy as np
@@ -10,9 +14,9 @@ from generalLibrary import *
 debug = False
 normal= not debug
 Taylor= False
-graphicalAvg = False
-everyPoint = False
-WanderOutside=False
+graphicalAvg = False	#Use graphical average method?
+everyPoint = False	#plot every point?
+WanderOutside=True	#Allow the points to wander outside of the pole figure? (in contrast to always choose the equivalent point that falls within the pole figure; i.e. if a point hits the boundary it is either allowed to wander outside or "reflected" by the boundary.)
 from scipy.optimize import minimize
 import time, os
 
@@ -109,7 +113,7 @@ if __name__=="__main__":
 
 	preNumFrame=0
 	numFrame = 397
-	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames with symmetry averaging")
+	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 397 frames")
 
 	qOfPoints=np.zeros([numGrains,4])
 	x_line = np.zeros([numGrains,numFrame])
@@ -126,7 +130,7 @@ if __name__=="__main__":
 		qList = []
 		for R in RList:
 			qList.append(RotToQuat(R))
-		guessQuat = uglyAverage(qList)
+		guessQuat = uglyAverage(qList)	#Start the guess with the ugly average
 		ThreeVar0 = Q_ThreeVar(guessQuat)
 
 		print("Finding the ID of grain", combinedGrain)
@@ -135,18 +139,18 @@ if __name__=="__main__":
 			totalMisor = 0
 			avg_q = ThreeVar_Q(ThreeVar)	#ThreeVar==[theta,THETA,PHI]
 			for gau in range (numGauss):	#add up the 8 points's minimum misorientation
-				totalMisor += misorientationSymm(avg_q,qList[gau])[0]
-				#totalMisor += misorientation2(avg_q,qList[gau])
-			return totalMisor
+				#totalMisor += misorientationSymm(avg_q,qList[gau])[0]**2
+				totalMisor += misorientation2(avg_q,qList[gau])**2
+			return sqrt(totalMisor)
 
 		bnds = [0,pi],[0,pi],[0,tau]	#set boundary for 
 		ThreeVar_avg = minimize(misorientationSum, x0=ThreeVar0, bounds=(bnds)).x
-		#dummy input of x=0, to get y = 0
+		#ThreeVar_avg, dummy, dummy, dummy = brute(misorientationSum, bnds, Ns = 500)	#Ns is number of divisions
 
 		avg_q = np.nan_to_num(ThreeVar_Q(ThreeVar_avg))		#Get it in quaternion form
 		R = QuatToR(avg_q)					#turn it into R (matrix) form
 		v48 = R_v(R)
-		ID[combinedGrain] = getIPpointID(v48)
+		ID[combinedGrain] = getIPpointID(v48)	#ID is the index of the grain that originally fell inside the pole figure.
 
 		r = v48[ID[combinedGrain]]
 		[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
@@ -164,8 +168,8 @@ if __name__=="__main__":
 
 	for frame in range (preNumFrame,numFrame):	#Iterate over frame
 		fileName = "LiterallyEveryPoint/"+str(frame+1)+"FrameRotationMatrices.txt"
-		fileNameOut= "MinimizedMatricesSymm/"+str(frame+1)+"FrameRotationMatrices.txt"
-		fileNameNext="MinimizedMatricesSymm/"+str(frame+2)+"FrameRotationMatrices.txt"
+		fileNameOut= "MinimizedMatrices/"+str(frame+1)+"FrameRotationMatrices.txt"
+		fileNameNext="MinimizedMatrices/"+str(frame+2)+"FrameRotationMatrices.txt"
 
 		UpdatedMatrices = ReadR(fileName)	#Read the list of matrices for that frame
 
@@ -185,9 +189,9 @@ if __name__=="__main__":
 					totalMisor = 0
 					avg_q = ThreeVar_Q(ThreeVar)	#ThreeVar==[theta,THETA,PHI]
 					for gau in range (numGauss):	#add up the 8 points's minimum misorientation
-						#totalMisor += misorientation2(avg_q,qList[gau])
-						totalMisor += misorientationSymm(avg_q,qList[gau])[0]
-					return totalMisor
+						totalMisor += misorientation2(avg_q,qList[gau])**2
+						#totalMisor += misorientationSymm(avg_q,qList[gau])[0]**2
+					return sqrt(totalMisor)
 
 				bnds = [0,pi],[0,pi],[0,tau]
 				ThreeVar_avg = minimize(misorientationSum, x0=ThreeVar0, bounds=(bnds)).x
@@ -246,7 +250,7 @@ if __name__=="__main__":
 
 	print("Time taken = ",time.time()-startTime)
 
-	if Taylor:
+	if Taylor:	#Plot the Taylor model average.
 		linex, liney = [""]*5, [""]*5
 		linex[0], liney[0] = getTaylorCurveDiv()[:,:]
 		linex[1], liney[1] = getTaylorCurve2()[:,:]
@@ -262,7 +266,7 @@ if __name__=="__main__":
 		plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverageWithTaylorModel.png")
 	else: 	
 		#plt.show()
-		fig.set_size_inches([25.6,19.2])
+		#fig.set_size_inches([25.6,19.2])
 		#fig.set_size_inches([11.2,8.4])
-		if not WanderOutside:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverageWithSymmetry(Restricted).png")
-		else:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverageWithSymmetry.png")
+		if not WanderOutside:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage(Restricted).png")
+		else:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage_small.png")

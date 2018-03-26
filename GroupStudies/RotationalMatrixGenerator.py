@@ -1,4 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python
+#Write a short file consisting of rotation matrices with user defined ThreeVar (ThreeVar==[theta, THETA,PHI])
 from numpy import sin, cos, tan, arccos, arctan, sqrt, pi
 import numpy as np
 import matplotlib.pyplot as plt

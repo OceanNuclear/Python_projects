@@ -1,4 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python
+#Input the frame and grain number where the discontinuity occured, and output the raw data(read from the .txt file) where they are found, for the purpose of finding whether the fault exist in the data or in the averaging method.
 import numpy as np
 from numpy import pi
 from quat import *

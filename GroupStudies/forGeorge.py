@@ -1,4 +1,6 @@
 #!/home/oceanw/anaconda3/bin/python
+#Code to turn Rotation matrix into spherical coordinates.
+#written for George to translate into MATLAB
 from numpy import arccos, arctan, pi
 from numpy import sin, cos, tan, sqrt
 import numpy as np

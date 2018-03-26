@@ -1,4 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python
+#Same as HeatMap.py, but plots for multiple sides at once.
 import numpy as np
 from scipy.constants import pi
 import math
@@ -76,7 +77,7 @@ for name in ["MaxShearStresses_"]:
 	for frameNumstr in ["120","180","240","300","360"]:
 		global fig
 		fig = plt.figure()
-		fig.set_tight_layout(True)
+		fig.set_tight_layout(True)	#needed to remove the black outline.
 
 		global ax
 		ax = plt.subplot(111)

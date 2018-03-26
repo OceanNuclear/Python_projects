@@ -1,4 +1,8 @@
 #!/home/oceanw/anaconda3/bin/python
+#Plots the orientation of grains over EVERY frame in the specified range (between (preNumFrame) and (NumFrame)).
+#Plots in mono(black and white).
+#Plots an emtpy circcle at the starting position.
+#Saves to the directory of Graphs/OrientationEvolutionPlot/ etc.
 from numpy import sin, cos, tan, arccos, arctan, sqrt, pi
 import numpy as np
 import matplotlib.pyplot as plt
@@ -90,7 +94,8 @@ if __name__=="__main__":
 	RotationMatrices = ReadR("OldExtraction/1FrameRotationMatrices.txt")
 	numGrains = len(RotationMatrices)
 	numGauss = 8
-	ID = np.ones(numGrains, dtype=int)*48#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
+	ID = np.ones(numGrains, dtype=int)*48
+	#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
 
 	for grain in range(numGrains):
 		v48 = R_v(RotationMatrices[grain])
@@ -163,7 +168,7 @@ if __name__=="__main__":
 		for combinedGrain in range(int(numGrains/numGauss)):
 			ax.plot(x_avg[combinedGrain], y_avg[combinedGrain], color = 'black')
 
-	if Taylor:
+	if Taylor:	#plot the five curves that represents where a grain should rotate if it follows the Taylor model.
 		linex, liney = [""]*5, [""]*5
 		linex[0], liney[0] = getTaylorCurveDiv()[:,:]
 		linex[1], liney[1] = getTaylorCurve2()[:,:]

@@ -1,4 +1,5 @@
 #!/home/oceanw/anaconda3/bin/python
+#find the scatter within each grain (average misorientation angle from the average orientation), and then save them to the directory of "Scatter/"+average+"/ScatterInGrain"+*+.txt
 import numpy as np
 from scipy.constants import pi
 import matplotlib.pyplot as plt
@@ -11,7 +12,7 @@ import time
 
 #23:33:11 I'm trying to race Bash to extract the misorientation in a file.
 method = ('sum','each')[1]
-average = ('renormalized','min')[0]
+average = ('renormalized','min')[1]
 numFrame = 397
 numGauss = 8
 numGrain = 124
@@ -51,7 +52,7 @@ for frame in range (numFrame):
 
 	print("frame",frame+1,"/", numFrame)
 	f.write(time[frame]+"\t")
-	f.write(str(np.sum(misor[frame])/numGrain)+"\n")	#normalized by total number of points.
+	f.write(str(np.sum(misor[frame,:])/numGrain)+"\n")	#normalized by total number of points.
 	
 f.close()
 r.close()

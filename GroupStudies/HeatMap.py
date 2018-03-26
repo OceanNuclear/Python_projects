@@ -1,4 +1,7 @@
 #!/home/oceanw/anaconda3/bin/python
+#Plots the heat map of a pole figure or Inverse pole figure
+#(depending on user requirement)
+#And then save the figure.
 import numpy as np
 from scipy.constants import pi
 import math
@@ -19,7 +22,7 @@ import time
 
 #Background plotting functions
 '''█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████'''
-def plotCircle(cTheta, cPhi):
+def plotCircle(cTheta, cPhi):	#plot the curvy bit of the pole figure.
 	Theta, Phi = DrawCircle(cTheta , cPhi , a=pi/2) #Theta has to be restricted to less than pi/2
 	R, Angle = stereographicProjector(Theta, Phi)
 
@@ -27,7 +30,7 @@ def plotCircle(cTheta, cPhi):
 	ax.plot(X,Y, color='black', linestyle=':')
 	return [R,Angle]
 
-def plotDiag(phi):
+def plotDiag(phi):	#plot the 8 diagonal lines on the pole figure for a given phi.
 	X,Y = Diag_xy(phi, 0,1)
 	ax.plot( X,Y , color='black', linestyle=':')
 	return
@@ -36,7 +39,7 @@ def plotDiag2(phi):
 	X,Y = Diag_xy(phi, pi/6,1)
 	ax.plot( X,Y , color='g')
 
-def BG(CompletePoleFig=False):
+def BG(CompletePoleFig=False):	#use =True instead to plot the complete pole figure.
 	InversePoleFig= not CompletePoleFig
 	if CompletePoleFig:
 		for n in range (8):
@@ -67,7 +70,7 @@ def BG(CompletePoleFig=False):
 if __name__=="__main__":
 	global fig
 	fig = plt.figure()
-	fig.set_tight_layout(True)
+	fig.set_tight_layout(True)	#needed to remove the black outline.
 
 	global ax
 	ax = plt.subplot(111)
@@ -134,13 +137,13 @@ if __name__=="__main__":
 
 	points = np.array([Xco,Yco]).T
 
-	xRes = 500
+	xRes = 500	#Define the horizonal resolution
 	yRes = int(xRes*yxratio)
 	x, y = np.mgrid[0:tan(pi/8):(xRes*1j), 0:y_max:(yRes*1j)]
 
-	z = griddata(points, rho, (x, y), method='cubic')
+	z = griddata(points, rho, (x, y), method='linear')	#Use cubic for smoother interpolation(warning: unexpected hotspots may result)
 
-	#takes in the (x_data, y_data), z(x_data,y_data), and interpolated data points.
+	##takes in the (x_data, y_data), z(x_data,y_data), and interpolated data points.
 	#ax.scatter(points[:,0], points[:,1] , color = 'r', marker = 'o')
 
 	#Plot the colormap itself.
@@ -149,7 +152,7 @@ if __name__=="__main__":
 	graph = ax.pcolor(x,y,z, cmap=cm.jet)#, vmin = 7.5e10, vmax = 1.18e11)
 	ax.scatter(Xco, Yco, color='black')
 	print("Time taken just to plot the main heat map =", time.time()-startTime)
-	#Put white polygons outside of the inverse pole figure area to hide the irrelevant bits.
+	#The five lines below put white polygons outside of the inverse pole figure area to hide the irrelevant bits.
 	xBound, yBound = InversePoleFigureLine()
 
 	xBound = np.append( xBound[1:],-0.01)
@@ -157,6 +160,7 @@ if __name__=="__main__":
 	yUpper = yBound-yBound+ getIPtip()[0] +0.01#the 0.01 bodges for the slight edge that appears on top 
 
 	ax.fill_between(xBound, yBound, yUpper, color = 'w')
+
 
 	#Plotting the non-pole Figure elements
 	plt.title("Heat map of dislocation densities at frame "+frameNumstr)
