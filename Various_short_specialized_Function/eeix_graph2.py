@@ -4,9 +4,25 @@
 from numpy import e, cos, arccos, sin, arctan, tan, pi, sqrt; from numpy import array as ary; import numpy as np; tau = 2*pi
 import matplotlib.pyplot as plt
 
-t_n = 10000
-t = np.linspace(0, tau,t_n)
 
+
+t_n = 10000
+'''
+#Using a logspace causes problems due to inherent flaw of floating points.
+def moreTimeLargeEnd(small, large, num):
+	if small==0: start=-100
+	else: start=np.log(small)
+
+	end = np.log(large)
+
+	inv = np.logspace(end, start, num, base = e)
+	return inv[0]-inv
+#t = np.logspace(-100, np.log(tau),t_n, base = e)
+#t = moreTimeLargeEnd(0,pi,t_n)
+#t = np.append(tau-t, t )
+'''
+t = np.linspace( 0,tau, t_n)
+#t = np.logspace(-100, np.log(pi), t_n, base = e)
 iterations = int(input("how many times should the complex variable e^ix be exponentiated?"))
 '''
 #here's an example of a recursive function:
