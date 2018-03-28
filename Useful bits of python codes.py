@@ -1,6 +1,7 @@
 #!/home/oceanw/anaconda3/bin/python3
 	#Prepend the code with this line: 
 	#(that's where my python environment is)
+from numpy import cos, arccos, sin, arctan, tan, pi, sqrt; from numpy import array as ary; import numpy as np; tau = 2*pi
 
 def removeBrackets(array):
 	if np.shape(array)==():
@@ -33,7 +34,7 @@ try:
 		y.append(x[i]) #or do anything else
 except IndexError:
 	pass
-#^This loop will automatically terminate when IndexError is reached. Woohoo!
+#^This loop will automatically terminate when we run out of x to append. Woohoo!
 
 '''To read from file:'''
 f = open(Infile, "r")
