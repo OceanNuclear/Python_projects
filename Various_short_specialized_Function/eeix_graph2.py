@@ -1,5 +1,4 @@
 #!/home/oceanw/anaconda3/bin/python3
-# coding: utf-8
 #Parametrically plots the e^(e^i*theta)) graph
 from numpy import e, cos, arccos, sin, arctan, tan, pi, sqrt; from numpy import array as ary; import numpy as np; tau = 2*pi
 import matplotlib.pyplot as plt
