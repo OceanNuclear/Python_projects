@@ -25,7 +25,7 @@ plt.show()
 So this solution of neutron flux is unphysical (i.e. unnormalizable).'''
 
 #Now I will try the solution where L^2 -> -L^2, so to eliminiate the imaginary part of it.
-b = 0.5
+b = 3
 x = np.linspace(0.001,1000, 10000)+b*1j
 #b below is the variabel that we're going to tweak
 
@@ -34,8 +34,8 @@ x = np.linspace(0.001,1000, 10000)+b*1j
 plt.plot(x,jn(0,x))
 plt.plot(x,yv(0,x))
 '''
-plt.plot(np.real(yv(0,x)),np.real(jn(0,x)),label = "Real of second kind \n against real of first kind")
-plt.plot(np.real(jn(0,x)),np.imag(jn(0,x)),label = "second kind complex")
+#plt.plot(np.real(yv(0,x)),np.real(jn(0,x)),label = "Real of second kind \n against real of first kind")
+#plt.plot(np.real(jn(0,x)),np.imag(jn(0,x)),label = "second kind complex")
 plt.plot(np.real(yv(0,x)),np.imag(yv(0,x)),label = "first kind complex")
 plt.legend()
 plt.suptitle("Bessel Functions plotted")
