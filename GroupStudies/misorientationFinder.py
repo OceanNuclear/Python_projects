@@ -34,7 +34,7 @@ for frame in range (numFrame):
 		meanFileName = "OldExtraction/"+str(frame+1)+"FrameRotationMatrices.txt"
 		Means = ReadR(meanFileName)[1:]
 	if average == "min":
-		meanFileName = "MinimizedMatrices/"+str(frame+1)+"FrameRotationMatrices.txt"
+		meanFileName = "CorrectAverage/"+str(frame+1)+"FrameRotationMatrices.txt"
 		Means = ReadR(meanFileName)
 
 	everyPointFileName = "LiterallyEveryPoint/"+str(frame+1)+"FrameRotationMatrices.txt"

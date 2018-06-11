@@ -1,0 +1,19 @@
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:200: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[0][0] -= 2*( q[2]**2  +q[3]**2  )
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:201: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[1][1] -= 2*( q[1]**2  +q[3]**2  )
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:202: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[2][2] -= 2*( q[1]**2  +q[2]**2  )
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:203: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[0][1] -= 2*( q[0]*q[3]-q[1]*q[2])
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:204: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[0][2] -= 2*(-q[0]*q[2]-q[1]*q[3])
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:205: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[1][0] -= 2*(-q[0]*q[3]-q[1]*q[2])
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:206: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[1][2] -= 2*( q[0]*q[1]-q[2]*q[3])
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:207: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[2][0] -= 2*( q[0]*q[2]-q[1]*q[3])
+/home/oceanw/Documents/Computing/Python_testing/GroupStudies/quat.py:208: ComplexWarning: Casting complex values to real discards the imaginary part
+  R[2][1] -= 2*(-q[0]*q[1]-q[2]*q[3])
+

@@ -262,9 +262,9 @@ def averageQuat(qList):	#Average quaternion finding method by the NASA paper
 	Matrix = np.zeros([4,4])
 	for q in qList:
 		Matrix += outerProduct(q,q)
-	print("the Eigen matrix", Matrix)
+	#print("the Eigen matrix", Matrix)
 	EigenVal, EigenMat= np.linalg.eig(Matrix)
-	average = EigenMat[np.argmax(EigenVal)]
+	average = EigenMat.T[np.argmax(EigenVal)]
 	return average*np.sign(average[0])	#It may return complex number in the elements if qList is short.
 
 '''
@@ -308,7 +308,7 @@ def misorientation2(p,q):	#Linear scale of misorientation
 	differenceRotation = np.clip(differenceRotation, -1,1)
 	#^clips it back to the range of [-1,1] to correct for any floating point division and multiplication problems.
 	theta = arccos((differenceRotation[0]**2-0.5)*2)	#This complicated formula is used to ensure that regardless of the sign of differenceRotation[0] we can still get a value of 0<=theta<=2pi.
-	return theta	#return the misorientation angle in radian
+	return theta*360/tau	#return the misorientation angle in radian
 	#return 1-cos(theta) #scale it nonlinearly instead
 
 '''

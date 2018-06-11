@@ -19,11 +19,18 @@ def plot(inFile,average='min',color='blue'):
 	for line in range (numLines):
 		x[line] = Data[line].split()[0]
 		y[line] = Data[line].split()[1]
+	if min(np.diff(y))<-0.001:
+		print(inFile[-7:-4])
+	'''result:
+	Grain
+	035, 052,062,073,088,104,114
+	Are all discontinuous.
+	'''
 
 	#plot You can format it as #'{:0=3.0f}'.format( spectrum*10 )
-	t = str(inFile[-7:-4]+average)
+	t = str(inFile[-7:-4])
 	#plt.plot(x,y,label=t, color=color, alpha = 0.8)
-	plt.plot(x,y, alpha = 0.8)
+	plt.plot(x,y, alpha = 0.8, label = t)
 	return
 
 def plotIndividual(inFile, outFile):
@@ -72,6 +79,7 @@ for grain in range (numGrain):
 if __name__=="__main__":
 	fig = plt.figure()
 	
+	print("Starting plot, below are the list of grains that has negative slow somewhere in it.")
 	for grain in range (numGrain):
 		grain = str('{:0=3d}'.format(grain+1))
 		#if (grain!='052')and(grain!='114')and(grain!='073'):
@@ -81,22 +89,22 @@ if __name__=="__main__":
 		#Moreorver, jagged-ness showed up in 062, 088, but only for minimization method.
 		if True:
 		#if np.sum([grain==x for x in ['052','073','114','035','104','062','088']]):
-			print("plotting grain", grain)
+			#print("plotting grain", grain)
 			#plot("Scatter/renormalized/ScatterInGrain"+grain+".txt", average='renormalized',color=cList[n])
 			#plot("Scatter/min/ScatterInGrain"+grain+".txt",color=cList[n])
-			plot("Scatter/min/ScatterInGrain"+grain+".txt")
+			plot("Scatter/CorrectAverage/ScatterInGrain"+grain+".txt")
 			n+=1
 	
 	#plot("Scatter/min/TotalNormalizedScatter.txt")	#
-	plt.suptitle("Misorientation from minimized average for every grain")
-	plt.title("\n On average, number of radians required to rotate \n from Gauss point to the average orientation in grain")
+	plt.suptitle("Misorientation from average orientation for every grain")
+	plt.title("\n\n On average, number of radians required to rotate \n from Gauss point to the average orientation in grain")
 	plt.ylabel("misorientation (radian)")
 	plt.xlabel("time (s)")
-	plt.legend(loc=6)
+	#plt.legend()#loc=6)
 	#fig.set_size_inches([11.2,8.4])
 	#fig.set_size_inches([16.8,12.6])
 	ax = plt.subplot(111)
 	ax.set_ylim([0,0.1])
 	ax.set_xlim([-5,5469.0])
-	plt.savefig("Scatter/min/DeviationFromMinAvgSelectedsmall.png")	#
+	plt.savefig("Scatter/CorrectAverage/DeviationFromCorrectAverage.png")	#
 	#plt.show()

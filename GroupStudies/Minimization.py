@@ -13,6 +13,7 @@ tau = 2*pi
 from generalLibrary import *
 debug = False
 normal= not debug
+grainList = ( 34, 51, 61, 72,87,103,113)
 Taylor= False
 graphicalAvg = False	#Use graphical average method?
 everyPoint = False	#plot every point?
@@ -125,16 +126,17 @@ if __name__=="__main__":
 	distance=np.zeros([numGrains,numFrame])
 	thresholdDistance = 0.02
 
-	for combinedGrain in range(int(numGrains/numGauss)):	#iterate over the first frame's grains
+	for combinedGrain in grainList:	#iterate over the first frame's grains
 		RList = RotationMatrices[combinedGrain*numGauss:(combinedGrain+1)*numGauss]	#get the initial list in 
 		qList = []
 		for R in RList:
 			qList.append(RotToQuat(R))
-		guessQuat = uglyAverage(qList)	#Start the guess with the ugly average
-		ThreeVar0 = Q_ThreeVar(guessQuat)
+		#guessQuat = uglyAverage(qList)	#Start the guess with the ugly average
+		#ThreeVar0 = Q_ThreeVar(guessQuat)
 
 		print("Finding the ID of grain", combinedGrain)
-
+		avg_q = averageQuat(qList)
+		'''
 		def misorientationSum(ThreeVar): #Define program to find the degrees of misorientation for a given input
 			totalMisor = 0
 			avg_q = ThreeVar_Q(ThreeVar)	#ThreeVar==[theta,THETA,PHI]
@@ -148,12 +150,14 @@ if __name__=="__main__":
 		#ThreeVar_avg, dummy, dummy, dummy = brute(misorientationSum, bnds, Ns = 500)	#Ns is number of divisions
 
 		avg_q = np.nan_to_num(ThreeVar_Q(ThreeVar_avg))		#Get it in quaternion form
+		'''
+
 		R = QuatToR(avg_q)					#turn it into R (matrix) form
 		v48 = R_v(R)
 		ID[combinedGrain] = getIPpointID(v48)	#ID is the index of the grain that originally fell inside the pole figure.
 
 		r = v48[ID[combinedGrain]]
-		[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
+		[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2] )
 		R, Angle = stereographicProjector(Theta,Phi)
 
 		X, Y = polar2D_xy(Angle, R)
@@ -168,8 +172,10 @@ if __name__=="__main__":
 
 	for frame in range (preNumFrame,numFrame):	#Iterate over frame
 		fileName = "LiterallyEveryPoint/"+str(frame+1)+"FrameRotationMatrices.txt"
-		fileNameOut= "MinimizedMatrices/"+str(frame+1)+"FrameRotationMatrices.txt"
-		fileNameNext="MinimizedMatrices/"+str(frame+2)+"FrameRotationMatrices.txt"
+		#fileNameOut= "MinimizedMatrices/"+str(frame+1)+"FrameRotationMatrices.txt"
+		fileNameOut= "CorrectAverage/"+str(frame+1)+"FrameRotationMatrices.txt"
+		#fileNameNext="MinimizedMatrices/"+str(frame+2)+"FrameRotationMatrices.txt"
+		fileNameNext="CorrectAverage/"+str(frame+2)+"FrameRotationMatrices.txt"
 
 		UpdatedMatrices = ReadR(fileName)	#Read the list of matrices for that frame
 
@@ -178,10 +184,13 @@ if __name__=="__main__":
 				qOfPoints[grain] = RotToQuat(UpdatedMatrices[grain])	#Find the pose in terms of quaternion.
 
 			toFile = ""
-			for combinedGrain in range(int(numGrains/numGauss)):	#loop 8 gauss points at a time.
+			for combinedGrain in grainList:	#loop 8 gauss points at a time.
 				print("Processing grainIndex=",'{:0=3d}'.format(combinedGrain),"/",int(numGrains/numGauss)-1,
 					"; frame",'{:0=3d}'.format(frame+1),"/", numFrame)
+
 				qList = qOfPoints[combinedGrain*numGauss:combinedGrain*numGauss+numGauss]
+				avg_q = averageQuat(qList)
+				'''
 				guessQuat = uglyAverage(qList)
 				ThreeVar0 = Q_ThreeVar(guessQuat)
 
@@ -196,10 +205,9 @@ if __name__=="__main__":
 				bnds = [0,pi],[0,pi],[0,tau]
 				ThreeVar_avg = minimize(misorientationSum, x0=ThreeVar0, bounds=(bnds)).x
 				#dummy input of x=0; aim to get y = 0
+				'''
 
-				avg_q = np.nan_to_num(ThreeVar_Q(ThreeVar_avg))		#Get it in quaternion form
-
-				theta_avg,THETA_avg,PHI_avg = ThreeVar_avg
+				theta_avg, THETA_avg, PHI_avg = Q_ThreeVar(avg_q)
 				toFile += writeR(theta_avg,THETA_avg,PHI_avg)	#Write down the matrix
 
 				R = QuatToR(avg_q)					#turn it into R (matrix) form
@@ -229,6 +237,7 @@ if __name__=="__main__":
 						print(" Current frame is plotted at x=", x_line[combinedGrain][frame],
 						", y=",y_line[combinedGrain][frame],
 						"on the polar coordinate system, transformed to xy coordinates.")
+
 			f=open(fileNameOut,"w")
 			f.write(toFile)
 			f.close()
@@ -236,7 +245,8 @@ if __name__=="__main__":
 		else:
 			MinimizedMatrix=ReadR(fileNameOut)	#Read the existing rotation matrices and move on.
 			print("Reading from frame",frame+1)
-			for combinedGrain in range (len(MinimizedMatrix)):
+			#for combinedGrain in range (len(MinimizedMatrix)):
+			for combinedGrain in grainList:
 				r =R_v( MinimizedMatrix[combinedGrain] )[ID[combinedGrain]]
 				[Theta, Phi] = cartesian_spherical(r[0],r[1],r[2])
 				R, Angle = stereographicProjector(Theta,Phi)
@@ -245,7 +255,8 @@ if __name__=="__main__":
 				y_avg[combinedGrain][frame]=Y
 
 	#Now plot the lines, grain by grain.
-	for combinedGrain in range(int(numGrains/numGauss)):
+	#for combinedGrain in range(int(numGrains/numGauss)):
+	for combinedGrain in grainList:
 		ax.plot(x_avg[combinedGrain][preNumFrame:], y_avg[combinedGrain][preNumFrame:], color = 'black', lw = 0.7)
 
 	print("Time taken = ",time.time()-startTime)
@@ -268,5 +279,7 @@ if __name__=="__main__":
 		#plt.show()
 		#fig.set_size_inches([25.6,19.2])
 		#fig.set_size_inches([11.2,8.4])
-		if not WanderOutside:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage(Restricted).png")
-		else:	plt.savefig("Graphs/OrientationEvolutionPlot/MinimizeAngle/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage_small.png")
+		if not WanderOutside:	plt.savefig("Graphs/OrientationEvolutionPlot/CorrectAveraging/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage(Restricted).png")
+		else:	
+			#plt.savefig("Graphs/OrientationEvolutionPlot/CorrectAveraging/GrainOrientationEvolution_ToFrame"+str(numFrame)+"misorientationMinimizationAverage_small.png")
+			plt.show()
