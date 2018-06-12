@@ -68,7 +68,7 @@ A = 2*A #multiplied by two because the function is rotationally symmetric at x =
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure()
 ax = plt.axes(xlim=(0, 2*np.pi), ylim=(-1, 1))
-line = ax.plot([], [], lw=3)
+line, = ax.plot([], [], lw=3)
 
 # initialization function: plot the background of each frame (I didn't touch this part of the code)
 def init():
