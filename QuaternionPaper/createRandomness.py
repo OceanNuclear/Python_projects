@@ -15,10 +15,28 @@ picName = "randomnessTest/"
 picName += str(input("Name of file (w/o .png)?"))
 picName += ".png"
 
+rn.seed(1998)
 def randomPointOnSphere():
 	THETA = arccos(rn.uniform(-1,1))#pick a random THETA, and make sure to scale it appropriately.
+	#THETA = rn.uniform(0,pi)
+	'''
+		as observable from the result of linear_seed(1998).png,
+		there are two concentrated spots at opposite angles as found in the rotated view,
+		suggesting that it is the wrong method;
+		while there are no discernable difference between the two views in arccos_seed(1998).png,
+		so the arccos method must be more correct.
+	'''
 	PHI = rn.uniform(0,tau)		#pick a random PHI
 	return [THETA, PHI]
+'''
+For dot on surface of sphere case:
+wanted:	sin(arccos(x)) = sqrt(1- x^2)
+	sin(f(rand_var))=sqrt(1-rand_var**2)
+	sin(f(rand_var))=density of states
+	linearProjection(f(z))=g(z) = lenght of belt(z)	#because number of distinct states at z ∝ length of belt at z
+for quaternion case:
+wanted:	probability density of that quaternion ∝ w^2 #because number of distinct states at w
+'''
 
 RadList = []
 AngList = []
@@ -29,7 +47,7 @@ def linearProjector(theta, phi):
 	radius = sin(theta)
 	return [radius, phi]
 
-for x in range (100):
+for x in range (500):
 	##create random quaternion
 	##Convert into R
 	##Project the z axis.
@@ -39,7 +57,8 @@ for x in range (100):
 	RadList = np.append(RadList, Rad)
 	AngList = np.append(AngList, Ang)
 
-	#create the rotation matrix R for rotating the angle of projection significantly enough for determining if the "random" pattern is random enough or not.
+	#create the rotation matrix R for rotating the angle of projection such that I can view it from another angle.
+	#If ther pattern is not truely random, the rotated view will show hot-spots at different locations than those in the original view.
 	R = np.zeros([3,3])
 	R[0] = [-0.22955971415019039,	-0.016359124925339308,	0.9731570873558699]
 	R[1] = [-0.9704505923981576,	0.08022683369058692,	-0.2275726320761089]
@@ -57,12 +76,9 @@ ax1 = fig.add_subplot(211, projection='polar')
 ax2 = fig.add_subplot(212, projection='polar')
 
 ax1.scatter(AngList, RadList,  color = 'b', marker='.', label = 'original top down view')
-ax1.title("original top down view")
-
 ax2.scatter(AngList2,RadList2, color = 'r', marker='.', label = 'rotated view')
-ax2.title("rotated view")
 
-plt.show()
+plt.savefig(picName)
 '''
 #alternatively do
 X, Y = polar2D_xy(AngList, RadList)
