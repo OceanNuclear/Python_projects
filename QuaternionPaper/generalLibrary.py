@@ -264,7 +264,7 @@ def ReadR(fileName):	#Rotation matrix reader.
 	#np.shape(Matrix) ==(n,3,3)
 	return Matrix
 
-def Readrho(fileName):	#scalar (e.g. dislocation density) reader
+def ReadX(fileName):	#scalar (e.g. dislocation density) reader
 	f = open( str(fileName))
 	rho = f.readlines()
 	f.close()

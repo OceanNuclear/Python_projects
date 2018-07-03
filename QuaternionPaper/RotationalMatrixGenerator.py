@@ -15,8 +15,8 @@ normal= not debug
 if __name__=="__main__":
 	f= open((input("What's the file name?")+".txt"), 'w')
 	for loopTime in range (7):
-		theta=float(input("theta="))
-		THETA=float(input("THETA="))
-		PHI = float(input("PHI  ="))
+		theta=np.rad2deg(float(input("theta=")))
+		THETA=np.rad2deg(float(input("THETA=")))
+		PHI = np.rad2deg(float(input("PHI  =")))
 		f.write(writeR(theta, THETA, PHI))
 	f.close()

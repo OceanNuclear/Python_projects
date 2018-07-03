@@ -75,6 +75,9 @@ if __name__=="__main__":
 	fig = plt.figure()
 	fig.set_tight_layout(True)
 
+	saveDirectory = "testModelGraphs/"
+	directory = "testModel/"
+
 	global ax
 	ax = plt.subplot(111)
 	#ax = plt.Axes(fig, [0., 0., 1., 1.] )
@@ -91,9 +94,11 @@ if __name__=="__main__":
 
 	BG()
 
-	RotationMatrices = ReadR("OldExtraction/1FrameRotationMatrices.txt")
+	RotationMatrices = ReadR(directory+"AverageOrientation_frame1.txt")
 	numGrains = len(RotationMatrices)
-	numGauss = 8
+	numGauss = len(ReadR(directory+"zzAllOrientationframe1.txt"))/numGrains
+
+	#Trivial duplication details
 	ID = np.ones(numGrains, dtype=int)*48
 	#The max has range=(0,47), so in theory when ID has been introduced none of them should remain as 48.
 
@@ -114,9 +119,11 @@ if __name__=="__main__":
 			arrowprops=dict(arrowstyle="-",connectionstyle="arc3")
 			)
 		'''
+
+	#Choose the range to plot
 	preNumFrame=0
-	numFrame = 397
-	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"out of 100 frames in hydrostatic stress model")
+	numFrame = 396+1
+	ax.set_title("Evolution of grains orientations up to frame"+str(numFrame))
 	x_line = np.zeros([numGrains,numFrame])
 	y_line = np.zeros([numGrains,numFrame])
 
@@ -127,7 +134,7 @@ if __name__=="__main__":
 
 	thresholdDistance = 0.2
 	for frame in range (preNumFrame,numFrame):
-		fileName = "OldExtraction/"+str(frame+1)+"FrameRotationMatrices.txt"
+		fileName = directory+"AverageOrientation_frame"+str(frame+1)+".txt"
 		UpdatedMatrices = ReadR(fileName)
 		print("Calculating for frame=", '{:0=3d}'.format(frame+1),"/", numFrame)
 		for grain in range(numGrains):
@@ -177,11 +184,11 @@ if __name__=="__main__":
 		for n in range (5):
 			ax.plot(linex[n][:-1], liney[n][:-1], 'r', alpha = 0.5)
 			ax.annotate("",xy=[linex[n][-2],liney[n][-2]], xytext =[linex[n][-1],liney[n][-1]], arrowprops=dict(color = 'r', arrowstyle= '<-'), alpha = 0.5)
-		ax.set_title("Evolution of grains orientations in Hydrostatic Model up to frame"+str(numFrame)+"\nout of 100 frames compared with Taylor Model prediction (in red)")
+		ax.set_title("Evolution of grains orientations up to frame"+str(numFrame)+"\n compared with Taylor Model prediction (in red)")
 		ax.set_aspect(0.366/tan(pi/8))
 		plt.show()
-		#plt.savefig("Graphs/OrientationEvolutionPlot/Hydrostatic/HydrostaticGrainOrientationEvolution_ToFrame"+str(numFrame)+"WithTaylorModelSuperimposed.png")
-	else: 	plt.show()
-		#fig.set_size_inches([25.6,19.2])#Other options include: 
-		#fig.set_size_inches([11.2,8.4])
-		#plt.savefig("Graphs/OrientationEvolutionPlot/Hydrostatic/HydrostaticGrainOrientationEvolution_ToFrame"+str(numFrame)+".png")
+		#plt.savefig(saveDirectory+"GOS_"+str(numFrame)+"WithTaylorModelSuperimposed.png")
+	else: 	#plt.show()
+		fig.set_size_inches([25.6,19.2])#Other options include: 
+		fig.set_size_inches([11.2,8.4])
+		plt.savefig(saveDirectory+"GOS_"+str(numFrame)+".png")
