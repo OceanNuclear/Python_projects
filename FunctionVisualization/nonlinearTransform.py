@@ -6,9 +6,9 @@ from numpy import *; from numpy import array as ary; import numpy as np; tau = 2
 import matplotlib.pyplot as plt; import matplotlib as mpl
 
 #<Change-able variables>
-Range = ary([-4,4])
+Range = ary([-1,1])
 def f(x):
-	return -1/log(x)
+	return cos(arcsin(x))
 #</Change-able variables>
 
 #Get the function name
