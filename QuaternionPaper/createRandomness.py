@@ -59,9 +59,7 @@ for x in range (10000):
 	q = np.zeros(4)
 	q[0] = cos(theta_w/2)
 	q[1:]= sin(theta_w/2)*spherical_cartesian(THETA,PHI)
-
-	#Convert into R
-	Rad, Ang = linearProjector(theta, phi)
+	Rad, Ang = cartesian_spherical(Q_v(q))
 	RadList = np.append(RadList, Rad)
 	AngList = np.append(AngList, Ang)
 
