@@ -33,7 +33,10 @@ For dot on surface of sphere case:
 wanted:	sin(arccos(x)) = sqrt(1- x^2)
 	sin(f(rand_var))=sqrt(1-rand_var**2)
 	sin(f(rand_var))=density of states
-	linearProjection(f(z))=g(z) = lenght of belt(z)	#because number of distinct states at z ∝ length of belt at z
+	linearProjection(f(z))=g(z) = length of belt(z)	#because number of distinct states at z ∝ length of belt at z
+	sin(f(rn.uniform(-1,1))) = 
+	#where f(x) happens to be the inverse of d/dx (sin(x)); does it matter?
+known:	freq(r=linearProjection(f(z)))/sqrt(1-r**2) = const
 for quaternion case:
 wanted:	probability density of that quaternion ∝ w^2 #because number of distinct states at w
 '''
@@ -47,12 +50,17 @@ def linearProjector(theta, phi):
 	radius = sin(theta)
 	return [radius, phi]
 
-for x in range (500):
-	##create random quaternion
-	##Convert into R
+for x in range (10000):
 	##Project the z axis.
 	#Make the quaternion
-	theta, phi = randomPointOnSphere()
+	#Choose axis for the random quaternion.
+	THETA, PHI = randomPointOnSphere()
+	theta_w = arccos(rn.uniform(-1,1))
+	q = np.zeros(4)
+	q[0] = cos(theta_w/2)
+	q[1:]= sin(theta_w/2)*spherical_cartesian(THETA,PHI)
+
+	#Convert into R
 	Rad, Ang = linearProjector(theta, phi)
 	RadList = np.append(RadList, Rad)
 	AngList = np.append(AngList, Ang)
@@ -72,15 +80,44 @@ for x in range (500):
 	AngList2= np.append(AngList2, AngRotated)
 
 fig = plt.figure()
-ax1 = fig.add_subplot(211, projection='polar')
-ax2 = fig.add_subplot(212, projection='polar')
 
+ax1 = fig.add_subplot(211)
+ax2 = fig.add_subplot(212)
+'''
 ax1.scatter(AngList, RadList,  color = 'b', marker='.', label = 'original top down view')
 ax2.scatter(AngList2,RadList2, color = 'r', marker='.', label = 'rotated view')
+'''
+#plot the bins
+numBin= 50
+#Range = np.linspace(0,1,numBin+2)[1:-1]	#purely a bodge; can be improved to allow the resolution of histogram to increase.
+freq1, range1, dummy = ax1.hist(RadList , bins=numBin)
+freq2, range2, dummy = ax2.hist(RadList2, bins=numBin)
+classmark1 = range1[:-1]+np.diff(range1)
+classmark2 = range2[:-1]+np.diff(range2)
+
+#create density of state to get a constant straight line.
+def density(classmark):
+	return 1/(1-classmark**2)
+ax1.plot(classmark1, freq1/density(classmark1))
+ax2.plot(classmark2, freq2/density(classmark2))
 
 plt.savefig(picName)
 '''
 #alternatively do
 X, Y = polar2D_xy(AngList, RadList)
 return [X,Y]
+'''
+
+'''
+Conclusion:
+The procedure for making points on a sphere are as follows:
+1. Generate phi uniformly.
+2. Generate theta independant from phi
+3. Apply a transformation on theta (theta = f(theta)) such that it fits the probability distribution.
+
+Therefore by reverse engineering we can produce random quaternions using the folllowing method:
+1. Pick an axis using the existing random point on a sphere function.
+2. Generate the amount of rotation to be applied (theta)
+3. Scale theta to fit the probability distribution function. (we want probability distribution of w)
+4. Generate the relevant quaternion.
 '''
