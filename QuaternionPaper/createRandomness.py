@@ -3,7 +3,7 @@
 #as well as converting between coordinate systems.
 import numpy as np
 import random as rn
-from numpy import sqrt, sin, cos, arccos, pi, arctan
+from numpy import sqrt, sin, cos, arccos, pi, arctan, arcsin
 tau = 2*pi
 from numpy import array as ary
 from quat import *
@@ -11,6 +11,8 @@ from generalLibrary import *
 
 
 
+plotHistogram=False
+quaternion=True
 picName = "randomnessTest/"
 picName += str(input("Name of file (w/o .png)?"))
 picName += ".png"
@@ -48,18 +50,29 @@ AngList2= []
 
 def linearProjector(theta, phi):
 	radius = sin(theta)
-	return [radius, phi]
+	return ary([radius, phi])
 
-for x in range (10000):
-	##Project the z axis.
-	#Make the quaternion
-	#Choose axis for the random quaternion.
-	THETA, PHI = randomPointOnSphere()
-	theta_w = arccos(rn.uniform(-1,1))
-	q = np.zeros(4)
-	q[0] = cos(theta_w/2)
-	q[1:]= sin(theta_w/2)*spherical_cartesian(THETA,PHI)
-	Rad, Ang = cartesian_spherical(Q_v(q))
+for x in range (1000):
+	if quaternion==True:
+		q = np.zeros(4)
+		'''
+		#Density of state of theta_w must vary as sin(theta_w);
+		theta_w = 2*arccos(rn.uniform(0,1))
+		#theta_w = rn.uniform(0,pi)
+		#where theta_w is the number of radian to rotate around the axis chosen in the next block of code.
+		'''
+		#shortcut version of commented out block above.
+		w = rn.uniform(0,1)
+		q[0] = w
+		#Choose the axis of rotation at random
+		THETA, PHI = randomPointOnSphere()
+		q[1:]= sqrt(1-w**2)*spherical_cartesian(THETA,PHI)
+
+		x,y,z = Q_v(q)	#Project the z axis.
+		theta, phi = cartesian_spherical(x,y,z)
+	else:
+		theta, phi = randomPointOnSphere()
+	Rad, Ang = linearProjector(theta,phi)
 	RadList = np.append(RadList, Rad)
 	AngList = np.append(AngList, Ang)
 
@@ -79,32 +92,32 @@ for x in range (10000):
 
 fig = plt.figure()
 
-ax1 = fig.add_subplot(211)
-ax2 = fig.add_subplot(212)
-'''
-ax1.scatter(AngList, RadList,  color = 'b', marker='.', label = 'original top down view')
-ax2.scatter(AngList2,RadList2, color = 'r', marker='.', label = 'rotated view')
-'''
-#plot the bins
-numBin= 50
-#Range = np.linspace(0,1,numBin+2)[1:-1]	#purely a bodge; can be improved to allow the resolution of histogram to increase.
-freq1, range1, dummy = ax1.hist(RadList , bins=numBin)
-freq2, range2, dummy = ax2.hist(RadList2, bins=numBin)
-classmark1 = range1[:-1]+np.diff(range1)
-classmark2 = range2[:-1]+np.diff(range2)
+if plotHistogram==False:
+	ax1 = fig.add_subplot(211, projection='polar')
+	ax2 = fig.add_subplot(212, projection='polar')
+	
+	ax1.scatter(AngList, RadList,  color = 'b', marker='.', label = 'original top down view')
+	ax2.scatter(AngList2,RadList2, color = 'r', marker='.', label = 'rotated view')
 
-#create density of state to get a constant straight line.
-def density(classmark):
-	return 1/(1-classmark**2)
-ax1.plot(classmark1, freq1/density(classmark1))
-ax2.plot(classmark2, freq2/density(classmark2))
+if plotHistogram==True:
+	ax1 = fig.add_subplot(211)
+	ax2 = fig.add_subplot(212)	
+
+	#plot the bins
+	numBin= 50
+	freq1, range1, dummy = ax1.hist(RadList , bins=numBin)
+	freq2, range2, dummy = ax2.hist(RadList2, bins=numBin)
+	classmark1 = range1[:-1]+np.diff(range1)
+	classmark2 = range2[:-1]+np.diff(range2)
+
+	#create density of state to get a constant straight line.
+	def density(classmark):
+		return 1/sqrt(1-(classmark**2))
+
+	ax1.plot(classmark1, freq1/density(classmark1))
+	ax2.plot(classmark2, freq2/density(classmark2))
 
 plt.savefig(picName)
-'''
-#alternatively do
-X, Y = polar2D_xy(AngList, RadList)
-return [X,Y]
-'''
 
 '''
 Conclusion:
@@ -117,5 +130,8 @@ Therefore by reverse engineering we can produce random quaternions using the fol
 1. Pick an axis using the existing random point on a sphere function.
 2. Generate the amount of rotation to be applied (theta)
 3. Scale theta to fit the probability distribution function. (we want probability distribution of w)
+	By educated trial and error, theta_w = 2*arccos(rn.uniform(0,1))
+	and is explained by the fact that cos((2*arccos(rand_var))/2)= linear distribution of random variable.
+	In other words, we want a linear distribution of w in the range of 0 to 1.
 4. Generate the relevant quaternion.
 '''

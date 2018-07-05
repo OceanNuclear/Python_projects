@@ -72,7 +72,7 @@ def spherical_cartesian(theta, phi):	#simple conversion from spherical to cartes
 	x = sin(theta)*cos(phi)
 	y = sin(theta)*sin(phi)
 	z = cos(theta)
-	return [x,y,z]
+	return ary([x,y,z])
 
 def RotX(theta):	#Rotation matrix to rotate about X axis
 	R = np.identity(3)

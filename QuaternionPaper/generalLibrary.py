@@ -18,12 +18,6 @@ def polar2D_xy(Angle, R):
 def stereographicProjector(Theta, Phi):
 	return tan(Theta/2), Phi
 
-def spherical_cartesian(theta, phi):
-	x = sin(theta)*cos(phi)
-	y = sin(theta)*sin(phi)
-	z = cos(theta)
-	return [x,y,z]
-
 def cartesian_spherical(x, y, z):
 	x,y,z = ary([x,y,z], dtype=float) #change the data type to the desired format
 
@@ -166,7 +160,7 @@ def R_v(R):	#Rotation matrix in, landing location of the Z axis out.
 
 def Q_v(q):	#Quaternion in, vector out.
 	Z = ary([1,0,0,1])
-	qauternion = multiply( multiply(q,Z) ,inverse(q) )
+	quaternion = multiply( multiply(q,Z) ,inverse(q) )
 	return quaternion[1:]
 
 def duplicate48Points(x0,y0,z0): #Find the equivalent points by permuating the indices and adding negative signs.
