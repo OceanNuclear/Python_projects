@@ -141,7 +141,7 @@ def cross (u, v):	#Cross product of two vectors.
 	x = u[1]*v[2] - u[2]*v[1]
 	y = u[2]*v[0] - u[0]*v[2]
 	z = u[0]*v[1] - u[1]*v[0]
-	return [x,y,z]
+	return ary([x,y,z])
 
 def dot (u,v):		#Dot product for same-length vector
 	summation = [u[n]*v[n] for n in range (len(u))]
@@ -157,7 +157,7 @@ def multiply(p, q):	#mulitplication of quaternions.
 	x = p[2]*q[3] - p[3]*q[2] + p[0]*q[1] + q[0]*p[1] #cross product of axes plus cross-multiply coefficient to the axes.
 	y = p[3]*q[1] - p[1]*q[3] + p[0]*q[2] + q[0]*p[2]
 	z = p[1]*q[2] - p[2]*q[1] + p[0]*q[3] + q[0]*p[3]
-	return [a,x,y,z]
+	return ary([a,x,y,z])
 
 def dotQ(p,q):	#dot product of two four component vectors.
 	CheckIfQuaternion(p)
@@ -180,14 +180,14 @@ def QuatToRotation(q):	#Quaternions to verbal description that expresses
 	print("\t", "Rotation by")
 	print("\t", 'theta =', np.rad2deg(theta), "degrees")
 	print("\t", "axis=", axis)
-	return [theta, axis]
+	return ary([theta, axis])
 
 def Q_ThreeVar(q):
 	theta = 2*arccos(np.clip(q[0],-1,1))
 	s2 = sin(theta/2)
 	x, y, z = ary(q)[1:]/s2
 	THETA, PHI = cartesian_spherical(x,y,z)
-	return [theta,THETA,PHI]
+	return ary([theta,THETA,PHI])
 
 def QuatToR(q):
 	theta = 2 * arccos(np.clip(q[0],-1,1))
@@ -226,6 +226,9 @@ def writeR(theta, THETA, PHI):	#input ThreeVar and ouput a string representing t
 	s2 = sin(theta/2)
 	q = [cos(theta/2), s2*x, s2*y, s2*z]
 	R = QuatToR(q)
+	return writeMatrix(R)
+
+def writeMatrix(R):
 	line1 = str(R[0][0])+'\t'+str(R[0][1])+'\t'+str(R[0][2])
 	line2 = str(R[1][0])+'\t'+str(R[1][1])+'\t'+str(R[1][2])
 	line3 = str(R[2][0])+'\t'+str(R[2][1])+'\t'+str(R[2][2])
@@ -396,13 +399,13 @@ def uglyAverage(qList):	#Simply take the renomalized average.
 
 
 def randomQGenerator():
-	PHI = rn.uniform(0,tau)		#pick a random PHI
+	w = rn.uniform(1,0)		#pick a random angle of rotation
 	THETA = arccos(rn.uniform(-1,1))#pick a random THETA, and make sure to scale it appropriately.
-	theta = rn.uniform(0, pi)	#pick a random angle of rotation
+	PHI = rn.uniform(0, tau)	#pick a random PHI
 
-	st2=sin(theta/2)
+	st2 = sqrt(1-w**2)
 	x,y,z = spherical_cartesian(THETA,PHI)
-	return [cos(theta/2), st2*x, st2*y, st2*z]
+	return ary([w, st2*x, st2*y, st2*z])
 
 if __name__=="__main__":	#If this program is run directly then it'll generate random quaternions to be averaged.
 	qlist = []
