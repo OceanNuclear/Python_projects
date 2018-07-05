@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 
 
-soft_threshold = 0.475
-hard_threshold = 0.39
+upper_soft = 0.48
+lower_hard = 0.39
 folder = "schmidSelected_2018/"
 rn.seed(2018)
 def randomQGenerator():
@@ -61,27 +61,34 @@ while grainNo<27:
 	v48 = duplicate48Points(Q_v(q)[0], Q_v(q)[1], Q_v(q)[2])
 	r = chooseIPpoint(v48)
 	#ID[grain] = getIPpointID(v48)	#optional
-	[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
-	R, Angle = stereographicProjector(Theta,Phi)
-	X, Y = polar2D_xy(Angle, R)
+	#[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
+	#R, Angle = stereographicProjector(Theta,Phi)
+	#X, Y = polar2D_xy(Angle, R)
 
-	ax.scatter(X, Y , color = 'black', marker = 'x')
+	#ax.scatter(X, Y , color = 'black', marker = 'x')
 	'''<\Standard code to turn quaternion into IPF (inverse pole figure)>█████████████████████████████████████████████████'''
 	#ax.plot(X2,Y2, markeredgecolor = 'black', markerfacecolor = 'none', marker='x')
 	#Make annotation directly next to the point being plotted:
 	Pass = False
-	if (grainNo<6) and (maxSchmidFactor(r)>soft_threshold):	#make sure the first six grains are soft grains.
+	if (grainNo<6) and (maxSchmidFactor(r)<upper_soft):	#make sure the first six grains are soft grains.
 		print("maxSchmidFactor=",maxSchmidFactor(r), " too low (hard), ignored")
 		Pass = True
-	elif(18<grainNo<=26) and (maxSchmidFactor(r)>hard_threshold):
+	elif(18<grainNo<=26) and (maxSchmidFactor(r)>lower_hard):
 		print("maxSchmidFactor=",maxSchmidFactor(r), " too high (soft), ignored")
 		Pass = True
-	elif(6<=grainNo<18) and not(hard_threshold<maxSchmidFactor(r)<=soft_threshold):
+	elif(6<=grainNo<18) and not(lower_hard<maxSchmidFactor(r)<=upper_soft):
 		print("maxSchmidFactor=",maxSchmidFactor(r), "ignored")
 		Pass = True
 	if Pass==False:
 		if (grainNo<26): grainName = chr(65+grainNo)
 		else: grainName = "A"+chr(65+grainNo-26)
+		#moved the plotting bit down here
+		[Theta, Phi] = cartesian_spherical( r[0], r[1], r[2])
+		R, Angle = stereographicProjector(Theta,Phi)
+		X, Y = polar2D_xy(Angle, R)
+
+		ax.scatter(X, Y , color = 'black', marker = 'x')
+
 		ax.annotate(grainName,xy=(X, Y), xycoords='data', color='r', fontname='DejaVu Sans Mono')
 		f.write(grainName+'\n')
 		f.write(writeMatrix(QuatToR(q)))	#write the rotation matrix to file.
