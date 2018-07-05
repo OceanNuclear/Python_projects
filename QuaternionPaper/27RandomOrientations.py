@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 
 
-folder = "seed_1/"
-rn.seed(1)
+folder = "seed_2018/"
+rn.seed(2018)
 def randomQGenerator():
 	w = rn.uniform(1,0)		#pick a random angle of rotation
 	THETA = arccos(rn.uniform(-1,1))#pick a random THETA, and make sure to scale it appropriately.
@@ -47,7 +47,6 @@ ax.annotate("[001]",	xy=[0,0], xycoords='data', ha='right',	color = 'black')
 ax.annotate("[101]",	xy=[tan(pi/8),0],xycoords='data',	color = 'black')
 x_an, y_an = getIPtip()
 ax.annotate("[111]",	xy=[x_an,y_an],	xycoords='data',	color = 'black')
-
 '''End of pole figure generation code.████████████████████████████████████████████████████████████████████████████████████████'''
 ax.set_title("Random Orientations")
 
@@ -66,8 +65,11 @@ for grain in range(27):
 	ax.scatter(X, Y , color = 'black', marker = 'x')
 	'''<\Standard code to turn quaternion into IPF (inverse pole figure)>█████████████████████████████████████████████████'''
 	#ax.plot(X2,Y2, markeredgecolor = 'black', markerfacecolor = 'none', marker='x')
-	ax.annotate(chr(65+grain),xy=(X, Y), xycoords='data', color='r', fontname='DejaVu Sans Mono')	#Make annotation directly next to the point being plotted.
-	
+	#Make annotation directly next to the point being plotted:
+	if (grain<26): grainName = chr(65+grain)
+	else: grainName = "A"+chr(65+grain-26)
+	ax.annotate(grainName,xy=(X, Y), xycoords='data', color='r', fontname='DejaVu Sans Mono')
+	f.write(grainName+'\n')
 	f.write(writeMatrix(QuatToR(q)))	#write the rotation matrix to file.
 
 f.close()

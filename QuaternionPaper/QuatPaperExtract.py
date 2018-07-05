@@ -46,7 +46,6 @@ for step in odb.steps.values():
 		frameSpecificFieldOutput = frame.fieldOutputs #shorthand, used before all four of the variables.
 		
 		#Grain dependent files:
-		volFile = open(savepath+"Volume_frame"+str(frameNo)+".txt", 'w')
 		OriFile = open(savepath+"AverageOrientation_frame"+str(frameNo)+".txt",'w')
 		GOSFile = open(savepath+"IntragrainOrientationScatter_frame"+str(frameNo)+".txt", 'w')
 		aOrFile = open(savepath+"zzAllOrientation_frame"+str(frameNo)+".txt", 'w')
@@ -57,7 +56,6 @@ for step in odb.steps.values():
 			grain_region = rtAsm.instances['PART-1-1'].elementSets['GRAIN_'+str(grainID+1)]	#For the use of finding the grain regions in the following scenarios.
 			print "Processing frameNo = ", frameNo, " grain ID = ", grainID
 			#Initiating other variables:
-			volume = 0
 			Ori	=	np.zeros([numGauss,3,3])
 			OriQuat=np.zeros([numGauss,4])
 			for gauss in range (numGauss):
@@ -91,12 +89,10 @@ for step in odb.steps.values():
 				GOS += misorientation2( avgOriQuat,OriQuat[gauss] )/numGauss
 			
 			#writing to file
-			volFile.write(str(volume)+'\n')
 			OriFile.write(writeMatrix(QuatToR(avgOriQuat)))
 			if GOS is not 0j:	#to prevent the '0j's found in frameNo==1, which will lead to errors when reading the file.
 				GOSFile.write(str(GOS)+'\n')
 			else: GOSFile.write(str(0)+'\n')
-		volFile.close()
 		OriFile.close()
 		GOSFile.close()
 		

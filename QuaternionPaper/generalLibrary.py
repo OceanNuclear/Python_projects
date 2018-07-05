@@ -214,6 +214,12 @@ def schmidFinder( vector,systemNum ):	#Find the Schmit factor for a given pullin
 	cos_theta=np.dot( vector, normalize(direction[systemNum])		)
 	return abs(cos_phi*cos_theta)
 
+def maxSchmidFactor(vector):	#operates on a single 3-D vector only.
+	schmidFactor = []
+	for slipSystem in range (12):	#Loop through all 12 systems, and then plot the largest value among them.
+		schmidFactor.append(schmidFinder(vector, slipSystem))
+	return max(schmidFactor)
+
 def generateV(num=100): #Generate 20 unit vectors that points upwards, i.e. THETA<pi/2
 	vList=[]
 	for iteration in range (num):
